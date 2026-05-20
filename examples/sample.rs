@@ -1,3 +1,5 @@
+//! A sample example demonstrating a single cube with a fixed rigid body and collider.
+
 use bevy::{
     color::palettes::css::{GREEN, ORANGE, WHITE},
     light::light_consts::lux::CLEAR_SUNRISE,
@@ -10,7 +12,8 @@ use bevy_rapier3d::{
 };
 use robocomp::{
     RobocompPlugin,
-    rc::{RcCollider, RcLinkRoot, RcRobotRoot, RcSceneRoot},
+    rc::{RcCollider, RcLink, RcLinkRoot, RcRigidBody, RcRobotRoot, RcSceneRoot},
+    rd::RdName,
 };
 
 fn main() {
@@ -79,17 +82,14 @@ fn setup_scene(
     ));
 
     // Scene...
-    commands.spawn(scene(&mut meshes, &mut materials));
-}
-
-fn scene(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>) -> impl Bundle {
-    (
-        Name::new("Sample Scene"),
-        Transform::default(),
-        Visibility::default(),
-        RcSceneRoot, // Scene Root for Robocomp
-        children![cube_robot(meshes, materials)],
-    )
+    commands
+        .spawn((
+            Name::new("Sample Scene"),
+            Transform::default(),
+            Visibility::default(),
+            RcSceneRoot, // Scene Root for Robocomp
+        ))
+        .with_child(cube_robot(&mut meshes, &mut materials));
 }
 
 fn cube_robot(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>) -> impl Bundle {
@@ -105,24 +105,30 @@ fn cube_robot(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial
         RcRobotRoot,
         Transform::default(),
         Visibility::default(),
-        children![(link(
-            "Cube",
+        children![(
+            link(
+                "Cube",
+                RcRigidBody::default(),
+                cube_mesh_hdl.clone(),
+                cube_mat_hdl.clone()
+            ),
             Transform::from_translation(Vec3::Y * 0.5),
-            cube_mesh_hdl.clone(),
-            cube_mat_hdl.clone()
-        ),)],
+        )],
     )
 }
 
 fn link(
     name: &'static str,
-    transform: Transform,
+    rigid_body: RcRigidBody,
     mesh_hdl: Handle<Mesh>,
     material_hdl: Handle<StandardMaterial>,
 ) -> impl Bundle {
     (
         Name::new(format!("{} Link", name)),
-        transform,
+        RcLink {
+            name: RdName::new(name),
+            rigid_body,
+        },
         Visibility::default(),
         RcLinkRoot,
         RcCollider {
