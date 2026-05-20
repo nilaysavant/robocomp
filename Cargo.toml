@@ -14,5 +14,5 @@ bevy_skein = "0.5"
 petgraph = "0.8"
 
 [dev-dependencies]
-bevy = { version = "0.18", features = ["2d", "3d", "ui", "free_camera"] }
+bevy = { version = "0.18", features = ["2d", "3d", "ui"] }
 bevy-inspector-egui = "0.36"

@@ -1,5 +1,4 @@
 use bevy::{
-    camera_controller::free_camera::{FreeCamera, FreeCameraPlugin},
     color::palettes::css::{GREEN, ORANGE, WHITE},
     light::light_consts::lux::CLEAR_SUNRISE,
     prelude::*,
@@ -21,9 +20,6 @@ fn main() {
         DefaultPlugins,
         EguiPlugin::default(),
         WorldInspectorPlugin::default(),
-        // Using the Bevy (built-in) free camera for now.
-        // TODO: add custom orbit cam!
-        FreeCameraPlugin,
     ));
     // Setup environment...
     app.insert_resource(GlobalAmbientLight {
@@ -56,17 +52,7 @@ fn setup_scene(
     // Camera...
     commands.spawn((
         Camera3d::default(),
-        Transform::from_xyz(2.0, 2.0, 2.0).looking_at(Vec3::ZERO, Vec3::Y),
-        // This component stores all camera settings and state, which is used by the FreeCameraPlugin to
-        // control it. These properties can be changed at runtime, but beware the controller system is
-        // constantly using and modifying those values unless the enabled field is false.
-        FreeCamera {
-            sensitivity: 0.2,
-            friction: 25.0,
-            walk_speed: 3.0,
-            run_speed: 9.0,
-            ..default()
-        },
+        Transform::from_translation(Vec3::ONE * 5.).looking_at(Vec3::ZERO, Vec3::Y),
     ));
 
     // Light...
