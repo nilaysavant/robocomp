@@ -93,19 +93,26 @@ fn scene(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>) ->
 }
 
 fn cube_object(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>) -> impl Bundle {
+    let cube_mesh_hdl = meshes.add(Mesh::from(Cuboid::from_size(Vec3::splat(1.0))));
+    let cube_mat_hdl = materials.add(StandardMaterial {
+        base_color: Color::from(ORANGE),
+        perceptual_roughness: 0.5,
+        ..Default::default()
+    });
+
     (
         Name::new("Cube Object"),
         RcRobotRoot,
         Transform::default(),
         Visibility::default(),
-        children![(cube_link("Cube", meshes, materials))],
+        children![(link("Cube", cube_mesh_hdl.clone(), cube_mat_hdl.clone()),)],
     )
 }
 
-fn cube_link(
+fn link(
     name: &'static str,
-    meshes: &mut Assets<Mesh>,
-    materials: &mut Assets<StandardMaterial>,
+    mesh_hdl: Handle<Mesh>,
+    material_hdl: Handle<StandardMaterial>,
 ) -> impl Bundle {
     (
         Name::new(format!("{} Link", name)),
@@ -120,12 +127,8 @@ fn cube_link(
             Name::new(format!("{} Mesh", name)),
             Transform::default(),
             Visibility::default(),
-            Mesh3d(meshes.add(Mesh::from(Cuboid::from_size(Vec3::splat(1.0))))),
-            MeshMaterial3d(materials.add(StandardMaterial {
-                base_color: Color::from(ORANGE),
-                perceptual_roughness: 0.5,
-                ..Default::default()
-            })),
+            Mesh3d(mesh_hdl),
+            MeshMaterial3d(material_hdl),
         )],
     )
 }
