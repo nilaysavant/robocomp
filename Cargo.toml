@@ -1,0 +1,18 @@
+[package]
+name = "robocomp"
+version = "0.1.0"
+authors = ["Nilay Savant"]
+edition = "2024"
+
+[dependencies]
+bevy = { version = "0.18", default-features = false, features = [
+    "bevy_render",
+] }
+bevy_rapier3d = "0.34"
+bevy_skein = "0.5"
+# graph
+petgraph = "0.8"
+
+[dev-dependencies]
+bevy = { version = "0.18", features = ["2d", "3d", "ui", "free_camera"] }
+bevy-inspector-egui = "0.36"
