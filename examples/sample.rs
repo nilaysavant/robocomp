@@ -105,18 +105,24 @@ fn cube_robot(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial
         RcRobotRoot,
         Transform::default(),
         Visibility::default(),
-        children![(link("Cube", cube_mesh_hdl.clone(), cube_mat_hdl.clone()),)],
+        children![(link(
+            "Cube",
+            Transform::from_translation(Vec3::Y * 0.5),
+            cube_mesh_hdl.clone(),
+            cube_mat_hdl.clone()
+        ),)],
     )
 }
 
 fn link(
     name: &'static str,
+    transform: Transform,
     mesh_hdl: Handle<Mesh>,
     material_hdl: Handle<StandardMaterial>,
 ) -> impl Bundle {
     (
         Name::new(format!("{} Link", name)),
-        Transform::from_translation(Vec3::Y * 0.5),
+        transform,
         Visibility::default(),
         RcLinkRoot,
         RcCollider {
