@@ -112,26 +112,34 @@ fn cube_object(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMateria
         RcRobotRoot,
         Transform::default(),
         Visibility::default(),
+        children![(cube_link("Cube", meshes, materials))],
+    )
+}
+
+fn cube_link(
+    name: &'static str,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+) -> impl Bundle {
+    (
+        Name::new(format!("{} Link", name)),
+        Transform::from_translation(Vec3::Y * 0.5),
+        Visibility::default(),
+        RcLinkRoot,
+        RcCollider {
+            keep_mesh: true,
+            ..Default::default()
+        },
         children![(
-            Name::new("Cube Link"),
-            Transform::from_translation(Vec3::Y * 0.5),
+            Name::new(format!("{} Mesh", name)),
+            Transform::default(),
             Visibility::default(),
-            RcLinkRoot,
-            RcCollider {
-                keep_mesh: true,
+            Mesh3d(meshes.add(Mesh::from(Cuboid::from_size(Vec3::splat(1.0))))),
+            MeshMaterial3d(materials.add(StandardMaterial {
+                base_color: Color::from(ORANGE),
+                perceptual_roughness: 0.5,
                 ..Default::default()
-            },
-            children![(
-                Name::new("Cube Mesh"),
-                Transform::default(),
-                Visibility::default(),
-                Mesh3d(meshes.add(Mesh::from(Cuboid::from_size(Vec3::splat(1.0))))),
-                MeshMaterial3d(materials.add(StandardMaterial {
-                    base_color: Color::from(ORANGE),
-                    perceptual_roughness: 0.5,
-                    ..Default::default()
-                })),
-            )],
+            })),
         )],
     )
 }
