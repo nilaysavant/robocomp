@@ -88,11 +88,11 @@ fn scene(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>) ->
         Transform::default(),
         Visibility::default(),
         RcSceneRoot, // Scene Root for Robocomp
-        children![cube_object(meshes, materials)],
+        children![cube_robot(meshes, materials)],
     )
 }
 
-fn cube_object(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>) -> impl Bundle {
+fn cube_robot(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>) -> impl Bundle {
     let cube_mesh_hdl = meshes.add(Mesh::from(Cuboid::from_size(Vec3::splat(1.0))));
     let cube_mat_hdl = materials.add(StandardMaterial {
         base_color: Color::from(ORANGE),
@@ -101,7 +101,7 @@ fn cube_object(meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMateria
     });
 
     (
-        Name::new("Cube Object"),
+        Name::new("Cube Robot"),
         RcRobotRoot,
         Transform::default(),
         Visibility::default(),
