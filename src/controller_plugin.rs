@@ -21,10 +21,10 @@ use super::{
     },
 };
 
-/// Plugin for Robot Controlling.
-pub struct ControllerPlugin;
+/// Plugin for Controlling Robocomp Robots.
+pub struct RobocompControllerPlugin;
 
-impl Plugin for ControllerPlugin {
+impl Plugin for RobocompControllerPlugin {
     fn build(&self, app: &mut App) {
         app // App
             // System Set...
@@ -50,12 +50,12 @@ impl Plugin for ControllerPlugin {
                 impulse_joint_controller_system.in_set(ControllerPluginSystemSet),
             )
             // Debug Systems...
-            // .add_systems(
-            //     Update,
-            //     debug_render_active_joint
-            //         .in_set(ControllerPluginSystemSet)
-            //         .run_if(toggle_inspector_is_active),
-            // )
+            .add_systems(
+                Update,
+                debug_render_active_joint
+                    .in_set(ControllerPluginSystemSet)
+                    .run_if(|| true),
+            )
             .add_systems(Startup, || info!("ControllerPlugin started..."));
     }
 }
@@ -387,7 +387,7 @@ fn get_motor_control_args(
         } => {
             let mut new_target_pos = current_motor_state.target_pos;
             // Apply boost or normal velocity based on key input...
-            let new_velocity = if shift_pressed {
+            let new_velocity = if shift_pressed && (w_pressed || s_pressed) {
                 debug!("Key Shift pressed...");
                 *boost_ang_vel
             } else if w_pressed || s_pressed {
@@ -413,7 +413,7 @@ fn get_motor_control_args(
             boost_vel,
             boost_factor,
         } => {
-            let (mut new_target_vel, new_factor) = if shift_pressed {
+            let (mut new_target_vel, new_factor) = if shift_pressed && (w_pressed || s_pressed) {
                 debug!("Key Shift pressed...");
                 (*boost_vel, *boost_factor)
             } else if w_pressed || s_pressed {

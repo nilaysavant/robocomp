@@ -23,3 +23,6 @@ mod cleanup_manager;
 
 /// Exports the main plugin for the robot compositor.
 pub use plugin::RobocompPlugin;
+
+/// Exports the controller plugin for controlling robots.
+pub use controller_plugin::RobocompControllerPlugin;

@@ -2,10 +2,7 @@ use bevy::prelude::*;
 
 use crate::{cleanup_manager::CleanupManagerPlugin, presets_plugin::PresetsPlugin};
 
-use super::{
-    controller_plugin::ControllerPlugin, pre_processor_plugin::PreProcessorPlugin,
-    type_registry_plugin::TypeRegistryPlugin,
-};
+use super::{pre_processor_plugin::PreProcessorPlugin, type_registry_plugin::TypeRegistryPlugin};
 
 /// # Robocomp Plugin
 ///
@@ -22,8 +19,6 @@ impl Plugin for RobocompPlugin {
             .add_plugins(PresetsPlugin)
             // Process the added entities with marked components...
             .add_plugins(PreProcessorPlugin)
-            // For Controlling the robot...
-            .add_plugins(ControllerPlugin)
             // Systems...
             .add_systems(Startup, || info!("RobocompPlugin started..."));
     }
