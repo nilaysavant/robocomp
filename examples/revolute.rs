@@ -82,6 +82,7 @@ fn cube_revolute_cube_robot(
                     cube_mesh_hdl.clone(),
                     cube_mat_hdl.clone()
                 ),
+                RcLinkRoot, // Mark the first link as the root link for the robot.
                 Transform::from_translation(Vec3::Y * 0.5),
             ),
             (
@@ -132,7 +133,6 @@ fn link(
             rigid_body,
         },
         Visibility::default(),
-        RcLinkRoot,
         RcCollider {
             keep_mesh: true,
             ..Default::default()
