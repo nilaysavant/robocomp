@@ -67,7 +67,6 @@ fn cube_revolute_cube_robot(
         perceptual_roughness: 0.,
         ..Default::default()
     });
-    let offset = 0.01;
 
     (
         Name::new("Cube Revolute Cube Robot"),
@@ -86,11 +85,10 @@ fn cube_revolute_cube_robot(
                 Transform::from_translation(Vec3::Y * 0.5),
             ),
             (
-                joint(
-                    "Revolute Joint",
-                    Vec3::Y * (1.0 + offset),
-                    Vec3::Y * (1.0 + offset)
-                ),
+                // Create a revolute joint between the first cube and the second cube.
+                // Local anchors can usually be left to zero ie. on the same position as the joint entity,
+                // but can be adjusted (in local space of the respective link) for different joint configurations.
+                joint("Revolute Joint", Vec3::ZERO, Vec3::ZERO),
                 RcJointKind::Revolute {
                     parent: RdName::new("Cube"),
                     child: RdName::new("Revolute Cube"),
@@ -105,7 +103,7 @@ fn cube_revolute_cube_robot(
                     position: None,
                     max_force: None,
                 },
-                Transform::from_translation(Vec3::Y * (1.0 + offset)),
+                Transform::from_translation(Vec3::Y * 1.5),
             ),
             (
                 link(
@@ -114,7 +112,7 @@ fn cube_revolute_cube_robot(
                     cube_mesh_hdl.clone(),
                     cube_mat_hdl.clone()
                 ),
-                Transform::from_translation(Vec3::Y * (1.5 + offset)),
+                Transform::from_translation(Vec3::Y * 2.5),
             )
         ],
     )
