@@ -1,11 +1,6 @@
 //! Example demonstrating a simple robot with a revolute joint between two cubes.
 
-use bevy::{
-    color::palettes::css::{GREEN, ORANGE, WHITE},
-    light::light_consts::lux::CLEAR_SUNRISE,
-    prelude::*,
-};
-use bevy_inspector_egui::{bevy_egui::EguiPlugin, quick::WorldInspectorPlugin};
+use bevy::{color::palettes::tailwind::BLUE_400, prelude::*};
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
@@ -19,20 +14,16 @@ use robocomp::{
     rd::{RdMotorModel, RdMotorVelocity, RdName},
 };
 
+use crate::scene_setup::SceneSetupPlugin;
+
+#[path = "helpers/scene_setup.rs"]
+mod scene_setup;
+
 fn main() {
     let mut app = App::new();
-    // Add Bevy, debug, camera plugins...
-    app.add_plugins((
-        DefaultPlugins,
-        EguiPlugin::default(),
-        WorldInspectorPlugin::default(),
-    ));
-    // Setup environment...
-    app.insert_resource(GlobalAmbientLight {
-        color: Color::from(WHITE),
-        brightness: 500.,
-        ..Default::default()
-    });
+    // Add Bevy default and basic scene setup plugins...
+    app.add_plugins((DefaultPlugins, SceneSetupPlugin));
+
     // Add rapier physics and robocomp plugins...
     app.add_plugins((
         RapierPhysicsPlugin::<NoUserData>::default(),
@@ -44,7 +35,7 @@ fn main() {
     app.add_systems(Startup, setup_scene);
 
     // Rest...
-    app.add_systems(Startup, || info!("Robocomp utils example running!"));
+    app.add_systems(Startup, || info!("Robocomp revolute example running!"));
 
     // Run app...
     app.run();
@@ -55,39 +46,10 @@ fn setup_scene(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // Camera...
-    commands.spawn((
-        Camera3d::default(),
-        Transform::from_translation(Vec3::ONE * 5.).looking_at(Vec3::ZERO, Vec3::Y),
-    ));
-
-    // Light...
-    commands.spawn((
-        Name::new("Sun Light"),
-        DirectionalLight {
-            color: Color::WHITE,
-            illuminance: CLEAR_SUNRISE,
-            shadows_enabled: true,
-            ..Default::default()
-        },
-        Transform::from_translation(Vec3::ONE).looking_at(Vec3::ZERO, Vec3::Y),
-    ));
-
-    // Ground plane...
-    commands.spawn((
-        Name::new("Ground Plane"),
-        Mesh3d(meshes.add(Mesh::from(Plane3d::new(Vec3::Y, Vec2::splat(5.0))))),
-        MeshMaterial3d(materials.add(StandardMaterial {
-            base_color: Color::from(GREEN),
-            perceptual_roughness: 0.9,
-            ..Default::default()
-        })),
-    ));
-
     // Scene...
     commands
         .spawn((
-            Name::new("Sample Scene"),
+            Name::new("Revolute Example Scene"),
             Transform::default(),
             Visibility::default(),
             RcSceneRoot, // Scene Root for Robocomp
@@ -101,8 +63,8 @@ fn cube_revolute_cube_robot(
 ) -> impl Bundle {
     let cube_mesh_hdl = meshes.add(Mesh::from(Cuboid::from_size(Vec3::splat(1.0))));
     let cube_mat_hdl = materials.add(StandardMaterial {
-        base_color: Color::from(ORANGE),
-        perceptual_roughness: 0.5,
+        base_color: Color::from(BLUE_400),
+        perceptual_roughness: 0.,
         ..Default::default()
     });
     let offset = 0.01;
