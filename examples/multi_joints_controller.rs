@@ -26,6 +26,15 @@ mod scene_setup;
 const CUBE_SIZE: f32 = 1.0;
 const HALF: f32 = CUBE_SIZE / 2.0;
 
+/// `RcJointKind` parent/child must match `RcLink.name` exactly — use these for both.
+const LINKS: [&str; 5] = ["Link 1", "Link 2", "Link 3", "Link 4", "Link 5"];
+const JOINTS: [&str; 4] = [
+    "Revolute Joint 1",
+    "Prismatic Joint 1",
+    "Revolute Joint 2",
+    "Prismatic Joint 2",
+];
+
 /// Motor control tuned for unit-sized cubes and the multi-link chain's added inertia.
 const MOTOR_CONTROL_NORMAL_VEL: f32 = 10.;
 const MOTOR_CONTROL_NORMAL_FACTOR: f32 = 125.;
@@ -92,7 +101,7 @@ fn multi_joint_robot(
         children![
             (
                 link(
-                    "Link 1",
+                    LINKS[0],
                     RcRigidBody::Fixed,
                     cube_mesh_hdl.clone(),
                     cube_mat_hdl.clone()
@@ -101,13 +110,13 @@ fn multi_joint_robot(
                 Transform::from_translation(Vec3::new(0., HALF, 0.)),
             ),
             (
-                // Create a revolute joint between Link 1 and Link 2.
+                // Create a revolute joint between LINKS[0] and LINKS[1].
                 // Local anchors can usually be left to zero ie. on the same position as the joint entity,
                 // but can be adjusted (in local space of the respective link) for different joint configurations.
-                joint("Revolute Joint 1", Vec3::ZERO, Vec3::ZERO),
+                joint(JOINTS[0], Vec3::ZERO, Vec3::ZERO),
                 RcJointKind::Revolute {
-                    parent: RdName::new("Link 1"),
-                    child: RdName::new("Link 2"),
+                    parent: RdName::new(LINKS[0]),
+                    child: RdName::new(LINKS[1]),
                     axis: Vec3::Y,
                 },
                 RcRevoluteJointMotor {
@@ -130,7 +139,7 @@ fn multi_joint_robot(
             ),
             (
                 link(
-                    "Link 2",
+                    LINKS[1],
                     RcRigidBody::Dynamic,
                     cube_mesh_hdl.clone(),
                     cube_mat_hdl.clone()
@@ -139,13 +148,13 @@ fn multi_joint_robot(
                 RcDisableSleep, // Keep the dynamic link awake for stable simulation.
             ),
             (
-                // Create a prismatic joint between Link 2 and Link 3.
+                // Create a prismatic joint between LINKS[1] and LINKS[2].
                 // Local anchors can usually be left to zero ie. on the same position as the joint entity,
                 // but can be adjusted (in local space of the respective link) for different joint configurations.
-                joint("Prismatic Joint 1", Vec3::ZERO, Vec3::ZERO),
+                joint(JOINTS[1], Vec3::ZERO, Vec3::ZERO),
                 RcJointKind::Prismatic {
-                    parent: RdName::new("Link 2"),
-                    child: RdName::new("Link 3"),
+                    parent: RdName::new(LINKS[1]),
+                    child: RdName::new(LINKS[2]),
                     axis: Vec3::X,
                 },
                 RcPrismaticJointMotor {
@@ -172,7 +181,7 @@ fn multi_joint_robot(
             ),
             (
                 link(
-                    "Link 3",
+                    LINKS[2],
                     RcRigidBody::Dynamic,
                     cube_mesh_hdl.clone(),
                     cube_mat_hdl.clone()
@@ -181,13 +190,13 @@ fn multi_joint_robot(
                 RcDisableSleep, // Keep the dynamic link awake for stable simulation.
             ),
             (
-                // Create a revolute joint between Link 3 and Link 4.
+                // Create a revolute joint between LINKS[2] and LINKS[3].
                 // Local anchors can usually be left to zero ie. on the same position as the joint entity,
                 // but can be adjusted (in local space of the respective link) for different joint configurations.
-                joint("Revolute Joint 2", Vec3::ZERO, Vec3::ZERO),
+                joint(JOINTS[2], Vec3::ZERO, Vec3::ZERO),
                 RcJointKind::Revolute {
-                    parent: RdName::new("Link 3"),
-                    child: RdName::new("Link 4"),
+                    parent: RdName::new(LINKS[2]),
+                    child: RdName::new(LINKS[3]),
                     axis: Vec3::Y,
                 },
                 RcRevoluteJointMotor {
@@ -214,7 +223,7 @@ fn multi_joint_robot(
             ),
             (
                 link(
-                    "Link 4",
+                    LINKS[3],
                     RcRigidBody::Dynamic,
                     cube_mesh_hdl.clone(),
                     cube_mat_hdl.clone()
@@ -227,13 +236,13 @@ fn multi_joint_robot(
                 RcDisableSleep, // Keep the dynamic link awake for stable simulation.
             ),
             (
-                // Create a prismatic joint between Link 4 and Link 5.
+                // Create a prismatic joint between LINKS[3] and LINKS[4].
                 // Local anchors can usually be left to zero ie. on the same position as the joint entity,
                 // but can be adjusted (in local space of the respective link) for different joint configurations.
-                joint("Prismatic Joint 2", Vec3::ZERO, Vec3::ZERO),
+                joint(JOINTS[3], Vec3::ZERO, Vec3::ZERO),
                 RcJointKind::Prismatic {
-                    parent: RdName::new("Link 4"),
-                    child: RdName::new("Link 5"),
+                    parent: RdName::new(LINKS[3]),
+                    child: RdName::new(LINKS[4]),
                     axis: Vec3::X,
                 },
                 RcPrismaticJointMotor {
@@ -264,7 +273,7 @@ fn multi_joint_robot(
             ),
             (
                 link(
-                    "Link 5",
+                    LINKS[4],
                     RcRigidBody::Dynamic,
                     cube_mesh_hdl.clone(),
                     cube_mat_hdl.clone()

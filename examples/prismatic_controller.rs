@@ -21,6 +21,10 @@ use crate::scene_setup::SceneSetupPlugin;
 #[path = "helpers/scene_setup.rs"]
 mod scene_setup;
 
+/// `RcJointKind` parent/child must match `RcLink.name` exactly — use these for both.
+const LINKS: [&str; 2] = ["Cube", "Prismatic Cube"];
+const JOINT: &str = "Prismatic Joint";
+
 fn main() {
     let mut app = App::new();
     // Add Bevy default and basic scene setup plugins...
@@ -81,7 +85,7 @@ fn cube_revolute_cube_robot(
         children![
             (
                 link(
-                    "Cube",
+                    LINKS[0],
                     RcRigidBody::Fixed,
                     cube_mesh_hdl.clone(),
                     cube_mat_hdl.clone()
@@ -90,13 +94,13 @@ fn cube_revolute_cube_robot(
                 Transform::from_translation(Vec3::new(0., 0.5, 0.)),
             ),
             (
-                // Create a prismatic joint between the first cube and the second cube.
+                // Create a prismatic joint between LINKS[0] and LINKS[1].
                 // Local anchors can usually be left to zero ie. on the same position as the joint entity,
                 // but can be adjusted (in local space of the respective link) for different joint configurations.
-                joint("Prismatic Joint", Vec3::ZERO, Vec3::ZERO),
+                joint(JOINT, Vec3::ZERO, Vec3::ZERO),
                 RcJointKind::Prismatic {
-                    parent: RdName::new("Cube"),
-                    child: RdName::new("Prismatic Cube"),
+                    parent: RdName::new(LINKS[0]),
+                    child: RdName::new(LINKS[1]),
                     axis: Vec3::X,
                 },
                 RcPrismaticJointMotor {
@@ -120,7 +124,7 @@ fn cube_revolute_cube_robot(
             ),
             (
                 link(
-                    "Prismatic Cube",
+                    LINKS[1],
                     RcRigidBody::Dynamic,
                     cube_mesh_hdl.clone(),
                     cube_mat_hdl.clone()
