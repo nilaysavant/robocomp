@@ -6,35 +6,32 @@ use bevy_rapier3d::{
     render::RapierDebugRenderPlugin,
 };
 use bevy_skein::SkeinPlugin;
-use robocomp::{RobocompPlugin, rc::RcSceneRoot};
+use robocomp_rapier::{RobocompRapierPlugin, rc::RcSceneRoot};
 
-use crate::scene_setup::SceneSetupPlugin;
+use crate::scene_setup::{SceneSetupPlugin, workspace_assets_dir};
 
 #[path = "helpers/scene_setup.rs"]
 mod scene_setup;
 
 fn main() {
     let mut app = App::new();
-    // Add Bevy default and basic scene setup plugins...
-    app.add_plugins((DefaultPlugins, SceneSetupPlugin));
-
-    // Add rapier physics and robocomp plugins...
     app.add_plugins((
-        SkeinPlugin::default(), // Add Skein plugin for Blender scene import.
-        RapierPhysicsPlugin::<NoUserData>::default(),
-        RapierDebugRenderPlugin::default(),
-        RobocompPlugin,
+        DefaultPlugins.set(AssetPlugin {
+            file_path: workspace_assets_dir(),
+            ..default()
+        }),
+        SceneSetupPlugin,
     ));
 
-    // Systems...
+    app.add_plugins((
+        SkeinPlugin::default(),
+        RapierPhysicsPlugin::<NoUserData>::default(),
+        RapierDebugRenderPlugin::default(),
+        RobocompRapierPlugin,
+    ));
+
     app.add_systems(Startup, setup_scene);
-
-    // Rest...
-    app.add_systems(Startup, || {
-        info!("Robocomp skein revolute example running!")
-    });
-
-    // Run app...
+    app.add_systems(Startup, || info!("Robocomp skein revolute example running!"));
     app.run();
 }
 
@@ -42,9 +39,8 @@ fn setup_scene(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         Name::new("Skein Revolute Scene"),
         SceneRoot(asset_server.load(
-            // Change this to your exported gltf file
             GltfAssetLabel::Scene(0).from_asset("revolute.gltf"),
         )),
-        RcSceneRoot, // Add the RcSceneRoot component for Robocomp to recognize this as a scene root.
+        RcSceneRoot,
     ));
 }

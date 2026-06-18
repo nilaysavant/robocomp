@@ -1,0 +1,10 @@
+[package]
+name = "robocomp_test_utils"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+publish = false
+
+[dependencies]
+bevy = { workspace = true, features = ["2d", "3d"] }
+robocomp = { workspace = true }

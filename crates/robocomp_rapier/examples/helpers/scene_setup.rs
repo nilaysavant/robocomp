@@ -1,7 +1,17 @@
 //! A helper module for setting up a basic scene with a camera, light, and ground plane.
 
+use std::path::Path;
+
 use bevy::{color::palettes::css::WHITE, light::light_consts::lux::CLEAR_SUNRISE, prelude::*};
 use bevy_inspector_egui::{bevy_egui::EguiPlugin, quick::WorldInspectorPlugin};
+
+/// Path to workspace-level `assets/` from the `robocomp_rapier` crate.
+pub fn workspace_assets_dir() -> String {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../assets")
+        .to_string_lossy()
+        .into_owned()
+}
 
 /// # Scene Setup Plugin
 ///

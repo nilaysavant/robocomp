@@ -1,18 +1,29 @@
-[package]
-name = "robocomp"
+[workspace]
+resolver = "2"
+members = [".", "crates/robocomp_rapier", "crates/robocomp_test_utils"]
+default-members = ["crates/robocomp_rapier"]
+
+[workspace.package]
 version = "0.1.0"
 authors = ["Nilay Savant"]
 edition = "2024"
 
-[dependencies]
-bevy = { version = "0.18", default-features = false, features = [
-    "bevy_render",
-] }
+[workspace.dependencies]
+bevy = { version = "0.18", default-features = false, features = ["bevy_render"] }
+bevy-full = { version = "0.18", features = ["2d", "3d", "ui"], package = "bevy" }
 bevy_rapier3d = "0.34"
 bevy_skein = "0.5"
-# graph
-petgraph = "0.8"
-
-[dev-dependencies]
-bevy = { version = "0.18", features = ["2d", "3d", "ui"] }
 bevy-inspector-egui = "0.36"
+petgraph = "0.8"
+robocomp = { path = "." }
+
+[package]
+name = "robocomp"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[dependencies]
+bevy = { workspace = true }
+bevy_skein = { workspace = true }
+petgraph = { workspace = true }

@@ -5,8 +5,8 @@ use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
-use robocomp::{
-    RobocompPlugin,
+use robocomp_rapier::{
+    RobocompRapierPlugin,
     rc::{
         RcCollider, RcJoint, RcJointKind, RcJointLocalAnchor1, RcJointLocalAnchor2, RcLink,
         RcLinkRoot, RcRevoluteJointMotor, RcRigidBody, RcRobotRoot, RcSceneRoot,
@@ -32,7 +32,7 @@ fn main() {
     app.add_plugins((
         RapierPhysicsPlugin::<NoUserData>::default(),
         RapierDebugRenderPlugin::default(),
-        RobocompPlugin,
+        RobocompRapierPlugin,
     ));
 
     // Systems...

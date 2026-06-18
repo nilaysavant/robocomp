@@ -1,7 +1,6 @@
 use std::f32::consts::{FRAC_PI_2, PI};
 
 use bevy::{platform::collections::HashMap, prelude::*};
-use bevy_rapier3d::prelude::*;
 use petgraph::prelude::*;
 
 use super::rd::{
@@ -116,9 +115,7 @@ pub struct RcRobotGraphLink {
 pub struct RcRobotGraphJoint {
     /// Name of the joint.
     pub joint_name: RdName,
-    /// [`Entity`] on which the joint is available.
-    ///
-    /// ie. where [`ImpulseJoint`] or [`MultibodyJoint`] is set.
+    /// [`Entity`] on which the physics joint is set.
     pub joint_entity: Entity,
     /// From link name.
     pub from_link: RdName,
@@ -300,15 +297,6 @@ pub enum RcRigidBody {
     #[default]
     Fixed,
     Dynamic,
-}
-
-impl From<RcRigidBody> for RigidBody {
-    fn from(value: RcRigidBody) -> Self {
-        match value {
-            RcRigidBody::Fixed => RigidBody::Fixed,
-            RcRigidBody::Dynamic => RigidBody::Dynamic,
-        }
-    }
 }
 
 /// Add continuous collision detection to the rigid body.

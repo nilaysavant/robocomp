@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 
-use crate::controller_plugin::ActiveJointControlTracker;
-
 pub use super::rc::*;
 pub use super::rd::*;
 
@@ -66,8 +64,6 @@ impl Plugin for TypeRegistryPlugin {
             .register_type::<RcIkTarget>()
             .register_type::<RcIkTargetSource>()
             .register_type::<RcIkAffectedLinks>()
-            // Controller components...
-            .register_type::<ActiveJointControlTracker>()
             // Rest...
             .add_systems(Startup, || info!("TypeRegistryPlugin started..."));
     }

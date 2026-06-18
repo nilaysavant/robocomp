@@ -2,6 +2,44 @@
 
 [Bevy][bevy-web] Plugin for **Robot/Rigid-Body Composition** using [URDF][urdf-wiki] inspired physics agnostic components. For use with editors like [Blender][blender-web] (via [Skein][skein-github]) etc.
 
+## Crates
+
+| Crate | Description |
+|-------|-------------|
+| [`robocomp`](Cargo.toml) | Physics-agnostic core: `Rd`/`Rc` components, [`RobocompPlugin`] |
+| [`robocomp_rapier`](crates/robocomp_rapier) | Rapier backend: [`RobocompRapierPlugin`], [`RobocompRapierControllerPlugin`] — re-exports core |
+
+For Rapier simulations, depend on `robocomp_rapier`:
+
+```toml
+[dependencies]
+robocomp_rapier = "0.1"
+```
+
+```rust
+use bevy::prelude::*;
+use bevy_rapier3d::prelude::*;
+use robocomp_rapier::{RobocompRapierPlugin, rc::RcSceneRoot};
+
+app.add_plugins((
+    RapierPhysicsPlugin::<NoUserData>::default(),
+    RobocompRapierPlugin,
+));
+```
+
+For a custom physics backend, depend on `robocomp` only and implement your own pre-processor.
+
+## Workspace
+
+```bash
+# Run all tests
+cargo test --workspace
+
+# Run an example (assets live at workspace root)
+cargo run -p robocomp_rapier --example revolute
+cargo run -p robocomp_rapier --example skein_revolute
+```
+
 ## Features
 
 - **Standardized Blender-Bevy interop**: Provides standard set of `Components` which can be set in _editors_ like Blender via plugins like [Skein][skein-github]. On exporting to `gltf/glb` and import into Bevy, they get converted into proper physics bodies with joints!
@@ -16,3 +54,6 @@
 [blender-web]: https://www.blender.org/
 [bevy-rapier-github]: https://github.com/dimforge/bevy_rapier
 [avian-github]: https://github.com/Jondolf/avian
+[`RobocompPlugin`]: src/plugin.rs
+[`RobocompRapierPlugin`]: crates/robocomp_rapier/src/rapier_plugin.rs
+[`RobocompRapierControllerPlugin`]: crates/robocomp_rapier/src/controller_plugin.rs

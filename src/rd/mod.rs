@@ -5,10 +5,6 @@
 use std::{borrow::Cow, hash::Hash};
 
 use bevy::{platform::collections::HashMap, prelude::*};
-use bevy_rapier3d::prelude::{
-    FixedJointBuilder, JointAxis, MotorModel, PrismaticJointBuilder, RevoluteJointBuilder,
-    SphericalJointBuilder,
-};
 
 /// Top Level Robot Descriptor and Manager.
 ///
@@ -177,19 +173,6 @@ pub struct RdFixedJointData {
     pub local_anchor2: RdVector,
 }
 
-impl From<RdFixedJointData> for FixedJointBuilder {
-    fn from(value: RdFixedJointData) -> Self {
-        let RdFixedJointData {
-            local_anchor1,
-            local_anchor2,
-        } = value;
-
-        FixedJointBuilder::new()
-            .local_anchor1(local_anchor1)
-            .local_anchor2(local_anchor2)
-    }
-}
-
 #[derive(Debug, Clone, Reflect, Default)]
 pub struct RdRevoluteJointData {
     pub axis: RdVector,
@@ -199,41 +182,6 @@ pub struct RdRevoluteJointData {
     pub limits: Option<RdJointLimits>,
 }
 
-impl From<RdRevoluteJointData> for RevoluteJointBuilder {
-    fn from(value: RdRevoluteJointData) -> Self {
-        let RdRevoluteJointData {
-            axis,
-            local_anchor1,
-            local_anchor2,
-            motor,
-            limits,
-        } = value;
-
-        let mut builder = RevoluteJointBuilder::new(axis)
-            .local_anchor1(local_anchor1)
-            .local_anchor2(local_anchor2)
-            .motor_model(motor.model.into());
-        if let Some(motor_velocity) = motor.velocity {
-            builder = builder.motor_velocity(motor_velocity.target, motor_velocity.factor);
-        }
-        if let Some(motor_position) = motor.position {
-            builder = builder.motor_position(
-                motor_position.target,
-                motor_position.stiffness,
-                motor_position.damping,
-            );
-        }
-        if let Some(motor_max_force) = motor.max_force {
-            builder = builder.motor_max_force(motor_max_force);
-        }
-        if let Some(limits) = limits {
-            builder = builder.limits([limits.min, limits.max]);
-        }
-
-        builder
-    }
-}
-
 #[derive(Debug, Clone, Reflect, Default)]
 pub struct RdPrismaticJointData {
     pub axis: RdVector,
@@ -241,41 +189,6 @@ pub struct RdPrismaticJointData {
     pub local_anchor2: RdVector,
     pub motor: RdMotor,
     pub limits: Option<RdJointLimits>,
-}
-
-impl From<RdPrismaticJointData> for PrismaticJointBuilder {
-    fn from(value: RdPrismaticJointData) -> Self {
-        let RdPrismaticJointData {
-            axis,
-            local_anchor1,
-            local_anchor2,
-            motor,
-            limits,
-        } = value;
-
-        let mut builder = PrismaticJointBuilder::new(axis)
-            .local_anchor1(local_anchor1)
-            .local_anchor2(local_anchor2)
-            .motor_model(motor.model.into());
-        if let Some(motor_velocity) = motor.velocity {
-            builder = builder.motor_velocity(motor_velocity.target, motor_velocity.factor);
-        }
-        if let Some(motor_position) = motor.position {
-            builder = builder.motor_position(
-                motor_position.target,
-                motor_position.stiffness,
-                motor_position.damping,
-            );
-        }
-        if let Some(motor_max_force) = motor.max_force {
-            builder = builder.motor_max_force(motor_max_force);
-        }
-        if let Some(limits) = limits {
-            builder = builder.limits([limits.min, limits.max]);
-        }
-
-        builder
-    }
 }
 
 #[derive(Debug, Clone, Reflect, Default)]
@@ -288,75 +201,6 @@ pub struct RdSphericalJointData {
     pub limit_ang_x: Option<RdJointLimits>,
     pub limit_ang_y: Option<RdJointLimits>,
     pub limit_ang_z: Option<RdJointLimits>,
-}
-
-impl From<RdSphericalJointData> for SphericalJointBuilder {
-    fn from(value: RdSphericalJointData) -> Self {
-        let RdSphericalJointData {
-            local_anchor1,
-            local_anchor2,
-            motor_x,
-            motor_y,
-            motor_z,
-            limit_ang_x,
-            limit_ang_y,
-            limit_ang_z,
-        } = value;
-
-        let mut builder = SphericalJointBuilder::new()
-            .local_anchor1(local_anchor1)
-            .local_anchor2(local_anchor2);
-        // Set motors...
-        [motor_x, motor_y, motor_z]
-            .iter()
-            .enumerate()
-            .for_each(|(i, motor)| {
-                if let Some(motor) = motor {
-                    let axis = match i {
-                        0 => JointAxis::AngX,
-                        1 => JointAxis::AngY,
-                        2 => JointAxis::AngZ,
-                        _ => unreachable!(),
-                    };
-                    builder = builder.motor_model(axis, motor.model.clone().into());
-                    if let Some(motor_velocity) = &motor.velocity {
-                        builder = builder.motor_velocity(
-                            axis,
-                            motor_velocity.target,
-                            motor_velocity.factor,
-                        );
-                    }
-                    if let Some(motor_position) = &motor.position {
-                        builder = builder.motor_position(
-                            axis,
-                            motor_position.target,
-                            motor_position.stiffness,
-                            motor_position.damping,
-                        );
-                    }
-                    if let Some(motor_max_force) = &motor.max_force {
-                        builder = builder.motor_max_force(axis, *motor_max_force);
-                    }
-                }
-            });
-        // Set limits...
-        [limit_ang_x, limit_ang_y, limit_ang_z]
-            .iter()
-            .enumerate()
-            .for_each(|(i, limits)| {
-                if let Some(limits) = limits {
-                    let axis = match i {
-                        0 => JointAxis::AngX,
-                        1 => JointAxis::AngY,
-                        2 => JointAxis::AngZ,
-                        _ => unreachable!(),
-                    };
-                    builder = builder.limits(axis, [limits.min, limits.max]);
-                }
-            });
-
-        builder
-    }
 }
 
 #[derive(Debug, Clone, Reflect, Default)]
@@ -372,15 +216,6 @@ pub enum RdMotorModel {
     AccelerationBased,
     #[default]
     ForceBased,
-}
-
-impl From<RdMotorModel> for MotorModel {
-    fn from(value: RdMotorModel) -> Self {
-        match value {
-            RdMotorModel::AccelerationBased => MotorModel::AccelerationBased,
-            RdMotorModel::ForceBased => MotorModel::ForceBased,
-        }
-    }
 }
 
 #[derive(Debug, Clone, Reflect)]

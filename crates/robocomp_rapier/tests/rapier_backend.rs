@@ -1,29 +1,44 @@
 use bevy::prelude::*;
 use bevy_rapier3d::{parry::shape::TypedShape, prelude::*};
 use robocomp::rc::{RcCollider, RcLink};
+use robocomp_rapier::RobocompRapierPlugin;
+use robocomp_test_utils::PhysicsTestBackend;
 
-/// # Robocomp Rapier Test Harness Plugin
-///
-/// [`RapierPhysicsPlugin`] with some additional type registrations and utilities for testing Robocomp scenes.
+/// Rapier physics backend for shared integration tests.
+pub struct RapierBackend;
+
+impl PhysicsTestBackend for RapierBackend {
+    fn add_physics_plugins(app: &mut App) {
+        app.add_plugins(RobocompRapierPlugin);
+        app.add_plugins(RobocompRapierTestHarnessPlugin);
+    }
+
+    fn validate_colliders(world: &mut World) -> Result<()> {
+        validate_colliders(world)
+    }
+
+    fn validate_links(world: &mut World) -> Result<()> {
+        validate_links(world)
+    }
+
+    fn collider_proxy_type_path() -> &'static str {
+        RapierColliderProxy::type_path()
+    }
+}
+
+/// [`RapierPhysicsPlugin`] with utilities for testing Robocomp scenes.
 pub struct RobocompRapierTestHarnessPlugin;
 
 impl Plugin for RobocompRapierTestHarnessPlugin {
     fn build(&self, app: &mut App) {
-        // Add robocomp plugins...
         app.add_plugins(RapierPhysicsPlugin::<NoUserData>::default());
-        // Type registrations...
         app.register_type::<RapierColliderProxy>();
         app.register_type::<RapierTypedShapeProxy>();
-        // Systems and Observers...
         app.add_observer(attach_collider_proxy);
-        // Rest...
-        app.add_systems(Startup, || {
-            info!("RobocompRapierTestHarnessPlugin running!")
-        });
+        app.add_systems(Startup, || info!("RobocompRapierTestHarnessPlugin running!"));
     }
 }
 
-/// Adds a [`RapierColliderProxy`] to entities when [`Collider`] is added.
 pub fn attach_collider_proxy(
     on_add: On<Add, Collider>,
     colliders: Query<&Collider>,
@@ -38,11 +53,9 @@ pub fn attach_collider_proxy(
     commands
         .entity(entity)
         .insert(RapierColliderProxy::from(collider.clone()));
-
     Ok(())
 }
 
-/// Proxy component for [`Collider`] for reflection in tests.
 #[derive(Debug, Clone, Reflect, Component)]
 #[reflect(Component)]
 pub struct RapierColliderProxy {
@@ -64,7 +77,6 @@ impl From<Collider> for RapierColliderProxy {
     }
 }
 
-/// Proxy component for [`TypedShape`] for reflection in tests.
 #[derive(Debug, Clone, Reflect, Component)]
 #[reflect(Component)]
 pub enum RapierTypedShapeProxy {
@@ -92,39 +104,32 @@ pub enum RapierTypedShapeProxy {
 
 impl From<TypedShape<'_>> for RapierTypedShapeProxy {
     fn from(typed_shape: TypedShape) -> Self {
-        // Match on the specific shape type and create corresponding proxy variant.
-        // This is a simplified example, you would need to implement all shape types you want to support.
         match typed_shape {
-            TypedShape::Ball(_ball) => RapierTypedShapeProxy::Ball,
-            TypedShape::Cuboid(_cuboid) => RapierTypedShapeProxy::Cuboid,
-            TypedShape::Capsule(_capsule) => RapierTypedShapeProxy::Capsule,
-            TypedShape::Segment(_segment) => RapierTypedShapeProxy::Segment,
-            TypedShape::Triangle(_triangle) => RapierTypedShapeProxy::Triangle,
-            TypedShape::Voxels(_voxels) => RapierTypedShapeProxy::Voxels,
-            TypedShape::TriMesh(_tri_mesh) => RapierTypedShapeProxy::TriMesh,
-            TypedShape::Polyline(_polyline) => RapierTypedShapeProxy::Polyline,
-            TypedShape::HalfSpace(_half_space) => RapierTypedShapeProxy::HalfSpace,
-            TypedShape::HeightField(_height_field) => RapierTypedShapeProxy::HeightField,
-            TypedShape::Compound(_compound) => RapierTypedShapeProxy::Compound,
-            TypedShape::ConvexPolyhedron(_convex_polyhedron) => {
-                RapierTypedShapeProxy::ConvexPolyhedron
-            }
-            TypedShape::Cylinder(_cylinder) => RapierTypedShapeProxy::Cylinder,
-            TypedShape::Cone(_cone) => RapierTypedShapeProxy::Cone,
-            TypedShape::RoundCuboid(_round_cuboid) => RapierTypedShapeProxy::RoundCuboid,
-            TypedShape::RoundTriangle(_round_triangle) => RapierTypedShapeProxy::RoundTriangle,
-            TypedShape::RoundCylinder(_round_cylinder) => RapierTypedShapeProxy::RoundCylinder,
-            TypedShape::RoundCone(_round_cone) => RapierTypedShapeProxy::RoundCone,
-            TypedShape::RoundConvexPolyhedron(_round_convex_polyhedron) => {
-                RapierTypedShapeProxy::RoundConvexPolyhedron
-            }
-            TypedShape::Custom(_custom) => RapierTypedShapeProxy::Custom,
+            TypedShape::Ball(_) => RapierTypedShapeProxy::Ball,
+            TypedShape::Cuboid(_) => RapierTypedShapeProxy::Cuboid,
+            TypedShape::Capsule(_) => RapierTypedShapeProxy::Capsule,
+            TypedShape::Segment(_) => RapierTypedShapeProxy::Segment,
+            TypedShape::Triangle(_) => RapierTypedShapeProxy::Triangle,
+            TypedShape::Voxels(_) => RapierTypedShapeProxy::Voxels,
+            TypedShape::TriMesh(_) => RapierTypedShapeProxy::TriMesh,
+            TypedShape::Polyline(_) => RapierTypedShapeProxy::Polyline,
+            TypedShape::HalfSpace(_) => RapierTypedShapeProxy::HalfSpace,
+            TypedShape::HeightField(_) => RapierTypedShapeProxy::HeightField,
+            TypedShape::Compound(_) => RapierTypedShapeProxy::Compound,
+            TypedShape::ConvexPolyhedron(_) => RapierTypedShapeProxy::ConvexPolyhedron,
+            TypedShape::Cylinder(_) => RapierTypedShapeProxy::Cylinder,
+            TypedShape::Cone(_) => RapierTypedShapeProxy::Cone,
+            TypedShape::RoundCuboid(_) => RapierTypedShapeProxy::RoundCuboid,
+            TypedShape::RoundTriangle(_) => RapierTypedShapeProxy::RoundTriangle,
+            TypedShape::RoundCylinder(_) => RapierTypedShapeProxy::RoundCylinder,
+            TypedShape::RoundCone(_) => RapierTypedShapeProxy::RoundCone,
+            TypedShape::RoundConvexPolyhedron(_) => RapierTypedShapeProxy::RoundConvexPolyhedron,
+            TypedShape::Custom(_) => RapierTypedShapeProxy::Custom,
         }
     }
 }
 
-/// Validates that all [`RcCollider`] components in the world have corresponding `Collider` components added.
-pub fn validate_colliders(world: &mut World) -> Result {
+pub fn validate_colliders(world: &mut World) -> Result<()> {
     let mut colliders = world.query::<(&RcCollider, Option<&Collider>)>();
     let colliders_iter = colliders.iter(world);
     let count = colliders_iter.clone().count();
@@ -139,10 +144,7 @@ pub fn validate_colliders(world: &mut World) -> Result {
     Ok(())
 }
 
-/// Validates the all [`RcLink`]s in the world have corresponding [`RigidBody`] components added.
-///
-/// With at least one [`Collider`] on itself or on its children.
-pub fn validate_links(world: &mut World) -> Result {
+pub fn validate_links(world: &mut World) -> Result<()> {
     let mut links = world.query::<(
         Entity,
         &RcLink,
@@ -150,7 +152,7 @@ pub fn validate_links(world: &mut World) -> Result {
         Option<&Collider>,
         Option<&Children>,
     )>();
-    let mut colliders = world.query::<(&Collider)>();
+    let mut colliders = world.query::<&Collider>();
     let links_iter = links.iter(world);
     let count = links_iter.clone().count();
     assert!(count > 0, "No RcLink components found in the world!");
@@ -160,9 +162,7 @@ pub fn validate_links(world: &mut World) -> Result {
             "RigidBody not added for RcLink: {:?}",
             rc_link
         );
-        // Check for colliders on self or children...
         if collider_opt.is_some() {
-            // Collider found on self, all good.
             continue;
         }
         if let Some(children) = children_opt {
@@ -185,6 +185,5 @@ pub fn validate_links(world: &mut World) -> Result {
             );
         }
     }
-
     Ok(())
 }

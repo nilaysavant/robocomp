@@ -9,24 +9,20 @@ use bevy_rapier3d::{
 };
 // use common_utils::inspector::toggle_inspector_is_active;
 
-use crate::rc::{
-    BelongsToRcSceneRoot, RcSceneRoot, RcSceneRootReady, RcSceneRootWRobotRootsDetached,
+use robocomp::rc::{
+    BelongsToRcSceneRoot, RcIkAffectedLinks, RcIkTarget, RcIkTargetSource,
+    RcJointMotorControlConfig, RcLink, RcRobotGraph, RcRobotGraphJoint, RcRobotRoot, RcSceneRoot,
+    RcSceneRootReady, RcSceneRootWRobotRootsDetached,
 };
 
-use super::{
-    pre_processor_plugin::PreProcessorPluginSystemSet,
-    rc::{
-        RcIkAffectedLinks, RcIkTarget, RcIkTargetSource, RcJointMotorControlConfig, RcLink,
-        RcRobotGraph, RcRobotGraphJoint, RcRobotRoot,
-    },
-};
+use crate::pre_processor_plugin::PreProcessorPluginSystemSet;
 
-/// Plugin for Controlling Robocomp Robots.
-pub struct RobocompControllerPlugin;
+/// Plugin for Controlling Robocomp Robots with Rapier.
+pub struct RobocompRapierControllerPlugin;
 
-impl Plugin for RobocompControllerPlugin {
+impl Plugin for RobocompRapierControllerPlugin {
     fn build(&self, app: &mut App) {
-        app // App
+        app.register_type::<ActiveJointControlTracker>()
             // System Set...
             .configure_sets(
                 Update,

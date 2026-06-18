@@ -1,0 +1,17 @@
+[package]
+name = "robocomp_rapier"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+description = "Rapier physics integration for robocomp"
+
+[dependencies]
+bevy = { workspace = true }
+bevy_rapier3d = { workspace = true }
+bevy_skein = { workspace = true }
+robocomp = { workspace = true }
+
+[dev-dependencies]
+bevy = { workspace = true, features = ["2d", "3d", "ui"] }
+bevy-inspector-egui = { workspace = true }
+robocomp_test_utils = { path = "../robocomp_test_utils" }

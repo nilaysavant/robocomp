@@ -6,8 +6,8 @@ use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
-use robocomp::{
-    RobocompControllerPlugin, RobocompPlugin,
+use robocomp_rapier::{
+    RobocompRapierControllerPlugin, RobocompRapierPlugin,
     rc::{
         RcCollider, RcDisableSleep, RcJoint, RcJointKind, RcJointLocalAnchor1, RcJointLocalAnchor2,
         RcJointMotorControlConfig, RcLink, RcLinkRoot, RcPrismaticJointLimits,
@@ -34,8 +34,8 @@ fn main() {
     app.add_plugins((
         RapierPhysicsPlugin::<NoUserData>::default(),
         RapierDebugRenderPlugin::default(),
-        RobocompPlugin,
-        RobocompControllerPlugin, // Add the controller plugin for controlling the robot motors.
+        RobocompRapierPlugin,
+        RobocompRapierControllerPlugin,
     ));
 
     // Systems...
