@@ -6,7 +6,7 @@ edition.workspace = true
 description = "Rapier physics integration for robocomp"
 
 [dependencies]
-bevy = { workspace = true }
+bevy = { workspace = true, features = ["bevy_render"] }
 bevy_rapier3d = { workspace = true }
 bevy_skein = { workspace = true }
 robocomp = { workspace = true }

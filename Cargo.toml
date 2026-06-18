@@ -9,8 +9,7 @@ authors = ["Nilay Savant"]
 edition = "2024"
 
 [workspace.dependencies]
-bevy = { version = "0.18", default-features = false, features = ["bevy_render"] }
-bevy-full = { version = "0.18", features = ["2d", "3d", "ui"], package = "bevy" }
+bevy = { version = "0.18", default-features = false }
 bevy_rapier3d = "0.34"
 bevy_skein = "0.5"
 bevy-inspector-egui = "0.36"
@@ -24,6 +23,9 @@ authors.workspace = true
 edition.workspace = true
 
 [dependencies]
-bevy = { workspace = true }
+bevy = { workspace = true, features = ["bevy_render"] }
 bevy_skein = { workspace = true }
 petgraph = { workspace = true }
+
+[dev-dependencies]
+bevy = { workspace = true, features = ["2d", "3d", "ui"] }
