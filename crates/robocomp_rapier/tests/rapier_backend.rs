@@ -60,7 +60,7 @@ pub fn attach_collider_proxy(
 #[reflect(Component)]
 pub struct RapierColliderProxy {
     #[reflect(ignore)]
-    pub collider: Collider,
+    pub _collider: Collider,
     pub scale: Vec3,
     pub shape: RapierTypedShapeProxy,
 }
@@ -70,7 +70,7 @@ impl From<Collider> for RapierColliderProxy {
         let scale = collider.scale();
         let shape = RapierTypedShapeProxy::from(collider.as_typed_shape().as_typed_shape());
         Self {
-            collider,
+            _collider: collider,
             scale,
             shape,
         }
