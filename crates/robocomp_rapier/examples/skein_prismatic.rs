@@ -8,10 +8,14 @@ use bevy_rapier3d::{
 use bevy_skein::SkeinPlugin;
 use robocomp_rapier::{RobocompRapierPlugin, rc::RcSceneRoot};
 
-use crate::scene_setup::{SceneSetupPlugin, workspace_assets_dir};
+use crate::scene_setup::SceneSetupPlugin;
+use crate::workspace_assets::workspace_assets_dir;
 
 #[path = "helpers/scene_setup.rs"]
 mod scene_setup;
+
+#[path = "helpers/workspace_assets.rs"]
+mod workspace_assets;
 
 fn main() {
     let mut app = App::new();
