@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
+use crate::conversions;
 use robocomp::cleanup_manager::Cleanup;
 
 use robocomp::rc::{
@@ -251,7 +252,7 @@ pub fn process_link_markers(
         let RcLink { rigid_body, .. } = link_marker;
         commands
             .entity(link_ent)
-            .insert((crate::conversions::rigid_body_from_rc(rigid_body.clone()), Velocity::zero()));
+            .insert((conversions::rigid_body_from_rc(rigid_body.clone()), Velocity::zero()));
         // Enable CCD if added...
         if rc_ccd.is_some() {
             commands.entity(link_ent).insert(Ccd::enabled());
@@ -423,7 +424,7 @@ pub fn process_joint_markers(
                     max_force,
                 }) = revolute_joint_motor
                 {
-                    joint = joint.motor_model(crate::conversions::motor_model_from_rd(model.clone()));
+                    joint = joint.motor_model(conversions::motor_model_from_rd(model.clone()));
                     if let Some(velocity) = velocity {
                         joint = joint.motor_velocity(velocity.target, velocity.factor);
                     }
@@ -456,7 +457,7 @@ pub fn process_joint_markers(
                     max_force,
                 }) = prismatic_joint_motor
                 {
-                    joint = joint.motor_model(crate::conversions::motor_model_from_rd(model.clone()));
+                    joint = joint.motor_model(conversions::motor_model_from_rd(model.clone()));
                     if let Some(velocity) = velocity {
                         joint = joint.motor_velocity(velocity.target, velocity.factor);
                     }
@@ -500,15 +501,15 @@ pub fn process_joint_markers(
                     joint = joint
                         .motor_model(
                             JointAxis::AngX,
-                            crate::conversions::motor_model_from_rd(model_ang_x.clone()),
+                            conversions::motor_model_from_rd(model_ang_x.clone()),
                         )
                         .motor_model(
                             JointAxis::AngY,
-                            crate::conversions::motor_model_from_rd(model_ang_y.clone()),
+                            conversions::motor_model_from_rd(model_ang_y.clone()),
                         )
                         .motor_model(
                             JointAxis::AngZ,
-                            crate::conversions::motor_model_from_rd(model_ang_z.clone()),
+                            conversions::motor_model_from_rd(model_ang_z.clone()),
                         );
                     if let Some(velocity_ang_x) = velocity_ang_x {
                         joint = joint.motor_velocity(

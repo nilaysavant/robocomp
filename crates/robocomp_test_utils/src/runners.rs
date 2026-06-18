@@ -3,7 +3,7 @@ use robocomp::rc::{BelongsToRcSceneRoot, RcRobotRoot};
 
 use crate::{
     backend::PhysicsTestBackend,
-    harness::{BevyTestingDefaultsPlugin, RobocompTestHarnessPlugin, wait_for_scene_ready},
+    harness::{self, BevyTestingDefaultsPlugin, RobocompTestHarnessPlugin, wait_for_scene_ready},
     scenarios,
 };
 
@@ -44,7 +44,7 @@ pub fn run_sample_scene_serialize_test<B: PhysicsTestBackend>() -> Result<()> {
 
     wait_for_scene_ready(&mut app, 5)?;
 
-    let serialized_scene = crate::harness::serialize_scene_world(app.world_mut())?;
+    let serialized_scene = harness::serialize_scene_world(app.world_mut())?;
     println!("{}", serialized_scene);
     assert!(serialized_scene.contains(B::collider_proxy_type_path()));
 
@@ -60,7 +60,7 @@ pub fn run_multi_robots_test<B: PhysicsTestBackend>() -> Result<()> {
 
     let scene_roots_ready = wait_for_scene_ready(&mut app, 5)?;
 
-    let serialized_scene = crate::harness::serialize_scene_world(app.world_mut())?;
+    let serialized_scene = harness::serialize_scene_world(app.world_mut())?;
     println!("Serialized scene:\n{}", serialized_scene);
     assert!(
         serialized_scene.contains("Multi Robots Scene"),
