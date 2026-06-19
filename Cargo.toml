@@ -28,4 +28,4 @@ bevy_skein = { workspace = true }
 petgraph = { workspace = true }
 
 [dev-dependencies]
-bevy = { workspace = true, features = ["2d", "3d", "ui"] }
+bevy = { workspace = true, features = ["2d", "3d", "ui", "bevy_dev_tools"] }

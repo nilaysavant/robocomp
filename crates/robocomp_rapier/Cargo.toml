@@ -12,6 +12,6 @@ bevy_skein = { workspace = true }
 robocomp = { workspace = true }
 
 [dev-dependencies]
-bevy = { workspace = true, features = ["2d", "3d", "ui"] }
+bevy = { workspace = true, features = ["2d", "3d", "ui", "bevy_dev_tools"] }
 bevy-inspector-egui = { workspace = true }
 robocomp_test_utils = { path = "../robocomp_test_utils" }
