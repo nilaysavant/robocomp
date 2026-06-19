@@ -1,6 +1,9 @@
 //! A helper module for setting up a basic scene with a camera, light, and ground plane.
 
-use bevy::{color::palettes::css::WHITE, light::light_consts::lux::CLEAR_SUNRISE, prelude::*};
+use bevy::{
+    color::palettes::css::WHITE, dev_tools::fps_overlay::FpsOverlayPlugin,
+    light::light_consts::lux::CLEAR_SUNRISE, prelude::*,
+};
 use bevy_inspector_egui::{bevy_egui::EguiPlugin, quick::WorldInspectorPlugin};
 
 /// # Scene Setup Plugin
@@ -12,8 +15,12 @@ pub struct SceneSetupPlugin;
 
 impl Plugin for SceneSetupPlugin {
     fn build(&self, app: &mut App) {
-        // Add Bevy, debug, camera plugins...
-        app.add_plugins((EguiPlugin::default(), WorldInspectorPlugin::default()));
+        // Add Debug and Diagnostic plugins...
+        app.add_plugins((
+            FpsOverlayPlugin::default(),
+            EguiPlugin::default(),
+            WorldInspectorPlugin::default(),
+        ));
         // Setup environment...
         app.insert_resource(GlobalAmbientLight {
             color: Color::from(WHITE),
