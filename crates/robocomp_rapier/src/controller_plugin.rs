@@ -288,7 +288,7 @@ pub fn impulse_joint_controller_system(
     robot_roots: Query<(Entity, &ActiveJointControlTracker), With<RcRobotRoot>>,
     mut joints: Query<(&RcJointMotorControlConfig, &mut ImpulseJoint), With<RcLink>>,
     key_input: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
+    time: Res<Time<Fixed>>,
 ) {
     for (_robot_root_ent, active_joint_tracker) in robot_roots.iter() {
         let Some(generic_joint_entity) = active_joint_tracker.active() else {
@@ -366,7 +366,7 @@ pub fn impulse_joint_controller_system(
 fn get_motor_control_args(
     key_input: &Res<'_, ButtonInput<KeyCode>>,
     joint_motor_control_config: &RcJointMotorControlConfig,
-    time: &Res<'_, Time>,
+    time: &Res<'_, Time<Fixed>>,
     current_motor_state: &JointMotor,
 ) -> MotorControlArgs {
     // Capture key input...
