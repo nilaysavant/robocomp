@@ -1,8 +1,10 @@
 //! A helper module for setting up a basic scene with a camera, light, and ground plane.
 
 use bevy::{
-    color::palettes::css::WHITE, dev_tools::fps_overlay::FpsOverlayPlugin,
-    light::light_consts::lux::CLEAR_SUNRISE, prelude::*,
+    color::palettes::css::WHITE,
+    dev_tools::fps_overlay::{FpsOverlayConfig, FpsOverlayPlugin, FrameTimeGraphConfig},
+    light::light_consts::lux::CLEAR_SUNRISE,
+    prelude::*,
 };
 use bevy_inspector_egui::{bevy_egui::EguiPlugin, quick::WorldInspectorPlugin};
 
@@ -17,7 +19,12 @@ impl Plugin for SceneSetupPlugin {
     fn build(&self, app: &mut App) {
         // Add Debug and Diagnostic plugins...
         app.add_plugins((
-            FpsOverlayPlugin::default(),
+            FpsOverlayPlugin {
+                config: FpsOverlayConfig {
+                    frame_time_graph_config: FrameTimeGraphConfig::target_fps(144.),
+                    ..Default::default()
+                },
+            },
             EguiPlugin::default(),
             WorldInspectorPlugin::default(),
         ));
