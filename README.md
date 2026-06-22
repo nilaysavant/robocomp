@@ -54,11 +54,11 @@ For a custom physics backend, depend on `robocomp` only and implement your own p
 # Run all tests
 cargo test --workspace
 
-# Run an example (assets live at workspace root)
-cargo run -p robocomp_rapier3d --example revolute
-cargo run -p robocomp_rapier3d --example skein_revolute
-cargo run -p robocomp_avian3d --example revolute
-cargo run -p robocomp_avian3d --example skein_revolute
+# Run an example (assets live at workspace root; names: <example>[_skein]_<backend>)
+cargo run -p robocomp_rapier3d --example revolute_rapier3d
+cargo run -p robocomp_rapier3d --example revolute_skein_rapier3d
+cargo run -p robocomp_avian3d --example revolute_avian3d
+cargo run -p robocomp_avian3d --example revolute_skein_avian3d
 ```
 
 ## Features
