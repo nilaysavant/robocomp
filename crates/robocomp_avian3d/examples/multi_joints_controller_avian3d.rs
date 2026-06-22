@@ -3,8 +3,9 @@
 //! Allows controlling each joint on demand via the W/S + ShiftLeft keys.
 //! Use Arrow Up/Down to cycle the active joint.
 
-use bevy::{color::palettes::tailwind::BLUE_400, prelude::*};
 use avian3d::prelude::*;
+use bevy::{color::palettes::tailwind::BLUE_400, prelude::*};
+use robocomp::rd::RdMotorPosition;
 use robocomp_avian3d::{
     RobocompAvianControllerPlugin, RobocompAvianPlugin,
     rc::{
@@ -22,6 +23,8 @@ mod scene_setup;
 
 const CUBE_SIZE: f32 = 1.0;
 const HALF: f32 = CUBE_SIZE / 2.0;
+/// Extra gap along the revolute joint axis between parent and child link faces.
+const REVOLUTE_LINK_OFFSET: f32 = 0.5;
 
 /// `RcJointKind` parent/child must match `RcLink.name` exactly — use these for both.
 const LINKS: [&str; 5] = ["Link 1", "Link 2", "Link 3", "Link 4", "Link 5"];
@@ -33,10 +36,10 @@ const JOINTS: [&str; 4] = [
 ];
 
 /// Motor control tuned for unit-sized cubes and the multi-link chain's added inertia.
-const MOTOR_CONTROL_NORMAL_VEL: f32 = 10.;
-const MOTOR_CONTROL_NORMAL_FACTOR: f32 = 125.;
-const MOTOR_CONTROL_BOOST_VEL: f32 = 20.;
-const MOTOR_CONTROL_BOOST_FACTOR: f32 = 200.;
+const MOTOR_CONTROL_NORMAL_VEL: f32 = 4.;
+const MOTOR_CONTROL_NORMAL_FACTOR: f32 = 8.;
+const MOTOR_CONTROL_BOOST_VEL: f32 = 8.;
+const MOTOR_CONTROL_BOOST_FACTOR: f32 = 16.;
 
 fn main() {
     let mut app = App::new();
@@ -122,7 +125,11 @@ fn multi_joint_robot(
                         target: 0.,
                         factor: 0.,
                     }),
-                    position: None,
+                    position: Some(RdMotorPosition {
+                        target: 0.,
+                        stiffness: 0.,
+                        damping: 0.1,
+                    }),
                     max_force: None,
                 },
                 // Configuration for the motor controller for the revolute joint...
@@ -141,7 +148,11 @@ fn multi_joint_robot(
                     cube_mesh_hdl.clone(),
                     cube_mat_hdl.clone()
                 ),
-                Transform::from_translation(Vec3::new(0., CUBE_SIZE + HALF, 0.)),
+                Transform::from_translation(Vec3::new(
+                    0.,
+                    CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET,
+                    0.
+                )),
                 RcDisableSleep, // Keep the dynamic link awake for stable simulation.
             ),
             (
@@ -160,7 +171,11 @@ fn multi_joint_robot(
                         target: 0.,
                         factor: 0.,
                     }),
-                    position: None,
+                    position: Some(RdMotorPosition {
+                        target: 0.,
+                        stiffness: 0.,
+                        damping: 0.1,
+                    }),
                     max_force: None,
                 },
                 RcPrismaticJointLimits(RdJointLimits {
@@ -174,7 +189,11 @@ fn multi_joint_robot(
                     boost_vel: MOTOR_CONTROL_BOOST_VEL,
                     boost_factor: MOTOR_CONTROL_BOOST_FACTOR,
                 },
-                Transform::from_translation(Vec3::new(HALF, CUBE_SIZE + HALF, 0.)),
+                Transform::from_translation(Vec3::new(
+                    HALF,
+                    CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET,
+                    0.
+                )),
             ),
             (
                 link(
@@ -183,7 +202,11 @@ fn multi_joint_robot(
                     cube_mesh_hdl.clone(),
                     cube_mat_hdl.clone()
                 ),
-                Transform::from_translation(Vec3::new(CUBE_SIZE + HALF, CUBE_SIZE + HALF, 0.)),
+                Transform::from_translation(Vec3::new(
+                    CUBE_SIZE + HALF,
+                    CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET,
+                    0.
+                )),
                 RcDisableSleep, // Keep the dynamic link awake for stable simulation.
             ),
             (
@@ -202,7 +225,11 @@ fn multi_joint_robot(
                         target: 0.,
                         factor: 0.,
                     }),
-                    position: None,
+                    position: Some(RdMotorPosition {
+                        target: 0.,
+                        stiffness: 0.,
+                        damping: 0.1,
+                    }),
                     max_force: None,
                 },
                 // Configuration for the motor controller for the revolute joint...
@@ -214,8 +241,8 @@ fn multi_joint_robot(
                 },
                 Transform::from_translation(Vec3::new(
                     CUBE_SIZE + HALF,
-                    CUBE_SIZE + HALF + HALF,
-                    0.
+                    CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET + HALF,
+                    0.,
                 )),
             ),
             (
@@ -227,8 +254,8 @@ fn multi_joint_robot(
                 ),
                 Transform::from_translation(Vec3::new(
                     CUBE_SIZE + HALF,
-                    CUBE_SIZE + HALF + CUBE_SIZE,
-                    0.
+                    CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET + HALF + HALF + REVOLUTE_LINK_OFFSET,
+                    0.,
                 )),
                 RcDisableSleep, // Keep the dynamic link awake for stable simulation.
             ),
@@ -248,12 +275,16 @@ fn multi_joint_robot(
                         target: 0.,
                         factor: 0.,
                     }),
-                    position: None,
+                    position: Some(RdMotorPosition {
+                        target: 0.,
+                        stiffness: 0.,
+                        damping: 0.1,
+                    }),
                     max_force: None,
                 },
                 RcPrismaticJointLimits(RdJointLimits {
-                    min: 0.,
-                    max: CUBE_SIZE,
+                    min: 0.1,
+                    max: CUBE_SIZE * 2.,
                 }), // Limit the prismatic joint.
                 // Configuration for the motor controller for the prismatic joint...
                 RcJointMotorControlConfig::Velocity {
@@ -263,9 +294,9 @@ fn multi_joint_robot(
                     boost_factor: MOTOR_CONTROL_BOOST_FACTOR,
                 },
                 Transform::from_translation(Vec3::new(
-                    CUBE_SIZE + HALF + HALF,
-                    CUBE_SIZE + HALF + CUBE_SIZE,
-                    0.
+                    CUBE_SIZE * 2. + HALF,
+                    CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET + HALF + HALF + REVOLUTE_LINK_OFFSET,
+                    0.,
                 )),
             ),
             (
@@ -277,7 +308,7 @@ fn multi_joint_robot(
                 ),
                 Transform::from_translation(Vec3::new(
                     CUBE_SIZE + HALF + CUBE_SIZE,
-                    CUBE_SIZE + HALF + CUBE_SIZE,
+                    CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET + HALF + HALF + REVOLUTE_LINK_OFFSET,
                     0.,
                 )),
                 RcDisableSleep, // Keep the dynamic link awake for stable simulation.
