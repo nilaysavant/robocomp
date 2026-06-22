@@ -1,4 +1,4 @@
-//! Example demonstrating a scene imported from Blender using Skein, with a prismatic joint.
+//! Example demonstrating a scene imported from Blender using Skein, with a revolute joint between two cubes.
 
 use bevy::prelude::*;
 use bevy_rapier3d::{
@@ -6,7 +6,7 @@ use bevy_rapier3d::{
     render::RapierDebugRenderPlugin,
 };
 use bevy_skein::SkeinPlugin;
-use robocomp_rapier::{RobocompRapierPlugin, rc::RcSceneRoot};
+use robocomp_rapier3d::{RobocompRapierPlugin, rc::RcSceneRoot};
 
 use crate::scene_setup::SceneSetupPlugin;
 use crate::workspace_assets::workspace_assets_dir;
@@ -35,15 +35,15 @@ fn main() {
     ));
 
     app.add_systems(Startup, setup_scene);
-    app.add_systems(Startup, || info!("Robocomp skein prismatic example running!"));
+    app.add_systems(Startup, || info!("Robocomp skein revolute example running!"));
     app.run();
 }
 
 fn setup_scene(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
-        Name::new("Skein Prismatic Scene"),
+        Name::new("Skein Revolute Scene"),
         SceneRoot(asset_server.load(
-            GltfAssetLabel::Scene(0).from_asset("prismatic.gltf"),
+            GltfAssetLabel::Scene(0).from_asset("revolute.gltf"),
         )),
         RcSceneRoot,
     ));

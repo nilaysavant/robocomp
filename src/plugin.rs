@@ -9,7 +9,7 @@ use super::type_registry_plugin::TypeRegistryPlugin;
 /// Physics-agnostic robot compositor plugin for Bevy.
 ///
 /// Registers marker components, Skein presets, and scene cleanup.
-/// Add a physics backend plugin (e.g. [`robocomp_rapier::RobocompRapierPlugin`]) to spawn colliders and joints.
+/// Add a physics backend plugin (e.g. [`robocomp_rapier3d::RobocompRapierPlugin`]) to spawn colliders and joints.
 pub struct RobocompPlugin;
 
 impl Plugin for RobocompPlugin {

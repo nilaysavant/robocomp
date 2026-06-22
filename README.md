@@ -7,19 +7,19 @@
 | Crate | Description |
 |-------|-------------|
 | [`robocomp`](Cargo.toml) | Physics-agnostic core: `Rd`/`Rc` components, [`RobocompPlugin`] |
-| [`robocomp_rapier`](crates/robocomp_rapier) | Rapier backend: [`RobocompRapierPlugin`], [`RobocompRapierControllerPlugin`] — re-exports core |
+| [`robocomp_rapier3d`](crates/robocomp_rapier3d) | Rapier 3D backend: [`RobocompRapierPlugin`], [`RobocompRapierControllerPlugin`] — re-exports core |
 
-For Rapier simulations, depend on `robocomp_rapier`:
+For Rapier 3D simulations, depend on `robocomp_rapier3d`:
 
 ```toml
 [dependencies]
-robocomp_rapier = "0.1"
+robocomp_rapier3d = "0.1"
 ```
 
 ```rust
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
-use robocomp_rapier::{RobocompRapierPlugin, rc::RcSceneRoot};
+use robocomp_rapier3d::{RobocompRapierPlugin, rc::RcSceneRoot};
 
 app.add_plugins((
     RapierPhysicsPlugin::<NoUserData>::default(),
@@ -36,8 +36,8 @@ For a custom physics backend, depend on `robocomp` only and implement your own p
 cargo test --workspace
 
 # Run an example (assets live at workspace root)
-cargo run -p robocomp_rapier --example revolute
-cargo run -p robocomp_rapier --example skein_revolute
+cargo run -p robocomp_rapier3d --example revolute
+cargo run -p robocomp_rapier3d --example skein_revolute
 ```
 
 ## Features
@@ -55,5 +55,5 @@ cargo run -p robocomp_rapier --example skein_revolute
 [bevy-rapier-github]: https://github.com/dimforge/bevy_rapier
 [avian-github]: https://github.com/Jondolf/avian
 [`RobocompPlugin`]: src/plugin.rs
-[`RobocompRapierPlugin`]: crates/robocomp_rapier/src/rapier_plugin.rs
-[`RobocompRapierControllerPlugin`]: crates/robocomp_rapier/src/controller_plugin.rs
+[`RobocompRapierPlugin`]: crates/robocomp_rapier3d/src/rapier_plugin.rs
+[`RobocompRapierControllerPlugin`]: crates/robocomp_rapier3d/src/controller_plugin.rs

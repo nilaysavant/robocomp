@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
-members = [".", "crates/robocomp_rapier", "crates/robocomp_test_utils"]
-default-members = ["crates/robocomp_rapier"]
+members = [".", "crates/robocomp_rapier3d", "crates/robocomp_test_utils"]
+default-members = ["crates/robocomp_rapier3d"]
 
 [workspace.package]
 version = "0.1.0"

@@ -1,17 +1,19 @@
-//! Example demonstrating a simple robot with a revolute joint between two cubes.
+//! Example demonstrating a robot with a prismatic joint (w/ limits) between two cubes.
+//! Allows controlling the prismatic joint via the W/S + ShiftLeft Keys.
 
 use bevy::{color::palettes::tailwind::BLUE_400, prelude::*};
 use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
-use robocomp_rapier::{
-    RobocompRapierPlugin,
+use robocomp_rapier3d::{
+    RobocompRapierControllerPlugin, RobocompRapierPlugin,
     rc::{
-        RcCollider, RcJoint, RcJointKind, RcJointLocalAnchor1, RcJointLocalAnchor2, RcLink,
-        RcLinkRoot, RcRevoluteJointMotor, RcRigidBody, RcRobotRoot, RcSceneRoot,
+        RcCollider, RcDisableSleep, RcJoint, RcJointKind, RcJointLocalAnchor1, RcJointLocalAnchor2,
+        RcJointMotorControlConfig, RcLink, RcLinkRoot, RcPrismaticJointLimits,
+        RcPrismaticJointMotor, RcRigidBody, RcRobotRoot, RcSceneRoot,
     },
-    rd::{RdMotorModel, RdMotorVelocity, RdName},
+    rd::{RdJointLimits, RdMotorModel, RdMotorVelocity, RdName},
 };
 
 use crate::scene_setup::SceneSetupPlugin;
@@ -20,8 +22,8 @@ use crate::scene_setup::SceneSetupPlugin;
 mod scene_setup;
 
 /// `RcJointKind` parent/child must match `RcLink.name` exactly — use these for both.
-const LINKS: [&str; 2] = ["Cube", "Revolute Cube"];
-const JOINT: &str = "Revolute Joint";
+const LINKS: [&str; 2] = ["Cube", "Prismatic Cube"];
+const JOINT: &str = "Prismatic Joint";
 
 fn main() {
     let mut app = App::new();
@@ -33,13 +35,16 @@ fn main() {
         RapierPhysicsPlugin::<NoUserData>::default(),
         RapierDebugRenderPlugin::default(),
         RobocompRapierPlugin,
+        RobocompRapierControllerPlugin,
     ));
 
     // Systems...
     app.add_systems(Startup, setup_scene);
 
     // Rest...
-    app.add_systems(Startup, || info!("Robocomp revolute example running!"));
+    app.add_systems(Startup, || {
+        info!("Robocomp prismatic controller example running!")
+    });
 
     // Run app...
     app.run();
@@ -53,7 +58,7 @@ fn setup_scene(
     // Scene...
     commands
         .spawn((
-            Name::new("Revolute Example Scene"),
+            Name::new("Prismatic Controller Example Scene"),
             Transform::default(),
             Visibility::default(),
             RcSceneRoot, // Scene Root for Robocomp
@@ -73,7 +78,7 @@ fn cube_revolute_cube_robot(
     });
 
     (
-        Name::new("Cube Revolute Cube Robot"),
+        Name::new("Cube Prismatic Cube Robot"),
         RcRobotRoot,
         Transform::default(),
         Visibility::default(),
@@ -86,28 +91,36 @@ fn cube_revolute_cube_robot(
                     cube_mat_hdl.clone()
                 ),
                 RcLinkRoot, // Mark the first link as the root link for the robot.
-                Transform::from_translation(Vec3::Y * 0.5),
+                Transform::from_translation(Vec3::new(0., 0.5, 0.)),
             ),
             (
-                // Create a revolute joint between LINKS[0] and LINKS[1].
+                // Create a prismatic joint between LINKS[0] and LINKS[1].
                 // Local anchors can usually be left to zero ie. on the same position as the joint entity,
                 // but can be adjusted (in local space of the respective link) for different joint configurations.
                 joint(JOINT, Vec3::ZERO, Vec3::ZERO),
-                RcJointKind::Revolute {
+                RcJointKind::Prismatic {
                     parent: RdName::new(LINKS[0]),
                     child: RdName::new(LINKS[1]),
-                    axis: Vec3::Y,
+                    axis: Vec3::X,
                 },
-                RcRevoluteJointMotor {
-                    model: RdMotorModel::default(),
+                RcPrismaticJointMotor {
+                    model: RdMotorModel::AccelerationBased,
                     velocity: Some(RdMotorVelocity {
-                        target: 1.,
-                        factor: 1.,
+                        target: 0.,
+                        factor: 0.
                     }),
                     position: None,
                     max_force: None,
                 },
-                Transform::from_translation(Vec3::Y * 1.5),
+                RcPrismaticJointLimits(RdJointLimits { min: 0., max: 2.5 }), // Limit the prismatic joint.
+                // Configuration for the motor controller for the prismatic joint...
+                RcJointMotorControlConfig::Velocity {
+                    normal_vel: 4.,
+                    normal_factor: 10.,
+                    boost_vel: 8.,
+                    boost_factor: 10.0
+                },
+                Transform::from_translation(Vec3::new(1., 0.5, 0.)),
             ),
             (
                 link(
@@ -116,7 +129,8 @@ fn cube_revolute_cube_robot(
                     cube_mesh_hdl.clone(),
                     cube_mat_hdl.clone()
                 ),
-                Transform::from_translation(Vec3::Y * 2.5),
+                Transform::from_translation(Vec3::new(2., 0.5, 0.)),
+                RcDisableSleep,
             )
         ],
     )

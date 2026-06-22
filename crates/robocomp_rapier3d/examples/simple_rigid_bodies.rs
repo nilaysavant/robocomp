@@ -8,7 +8,7 @@ use bevy_rapier3d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
-use robocomp_rapier::{
+use robocomp_rapier3d::{
     RobocompRapierPlugin,
     rc::{
         RcCollider, RcDisableSleep, RcLink, RcLinkRoot, RcRigidBody, RcRobotRoot, RcSceneRoot,

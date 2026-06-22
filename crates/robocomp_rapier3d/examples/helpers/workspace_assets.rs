@@ -2,7 +2,7 @@
 
 use std::path::Path;
 
-/// Path to workspace-level `assets/` from the `robocomp_rapier` crate.
+/// Path to workspace-level `assets/` from the `robocomp_rapier3d` crate.
 pub fn workspace_assets_dir() -> String {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../assets")

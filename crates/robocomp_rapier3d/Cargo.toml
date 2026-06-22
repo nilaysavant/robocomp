@@ -1,5 +1,5 @@
 [package]
-name = "robocomp_rapier"
+name = "robocomp_rapier3d"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true

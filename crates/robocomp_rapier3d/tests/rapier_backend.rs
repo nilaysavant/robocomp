@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier3d::{parry::shape::TypedShape, prelude::*};
 use robocomp::rc::{RcCollider, RcLink};
-use robocomp_rapier::RobocompRapierPlugin;
+use robocomp_rapier3d::RobocompRapierPlugin;
 use robocomp_test_utils::PhysicsTestBackend;
 
 /// Rapier physics backend for shared integration tests.

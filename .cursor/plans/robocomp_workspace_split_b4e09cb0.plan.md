@@ -1,6 +1,6 @@
 ---
 name: robocomp workspace split
-overview: Split the monolithic `robocomp` crate into a physics-agnostic core (kept at repo root) and a `robocomp_rapier` supplementary crate under `crates/`, with a shared test/example layer so future `robocomp_avian` can reuse scenarios without duplication.
+overview: Split the monolithic `robocomp` crate into a physics-agnostic core (kept at repo root) and a `robocomp_rapier3d` supplementary crate under `crates/`, with a shared test/example layer so future `robocomp_avian3d` can reuse scenarios without duplication.
 todos:
   - id: workspace-toml
     content: Convert root Cargo.toml to workspace; keep robocomp core package at root
@@ -12,7 +12,7 @@ todos:
     content: Create crates/robocomp_test_utils with harness, fixtures, PhysicsTestBackend trait
     status: completed
   - id: rapier-crate
-    content: Create crates/robocomp_rapier with plugins, conversions, re-exports, examples, tests
+    content: Create crates/robocomp_rapier3d with plugins, conversions, re-exports, examples, tests
     status: completed
   - id: assets-path
     content: Configure AssetPlugin in shared helper to use ../../assets from rapier crate
@@ -23,7 +23,7 @@ todos:
 isProject: false
 ---
 
-# robocomp / robocomp_rapier Workspace Split
+# robocomp / robocomp_rapier3d Workspace Split
 
 ## Recommended layout (your preference: core at root)
 
@@ -34,13 +34,13 @@ robocomp/                          # workspace root + core crate
 ├── assets/                        # stays here (workspace-level)
 ├── blender/
 ├── crates/
-│   ├── robocomp_rapier/           # Rapier backend + examples + integration tests
+│   ├── robocomp_rapier3d/           # Rapier backend + examples + integration tests
 │   │   ├── Cargo.toml
 │   │   ├── src/
 │   │   ├── examples/
 │   │   └── tests/
 │   ├── robocomp_test_utils/       # internal, unpublished — shared fixtures
-│   └── robocomp_avian/            # later, same shape as rapier
+│   └── robocomp_avian3d/            # later, same shape as rapier
 └── README.md
 ```
 
@@ -55,8 +55,8 @@ robocomp/                          # workspace root + core crate
 ```toml
 [workspace]
 resolver = "2"
-members = [".", "crates/robocomp_rapier", "crates/robocomp_test_utils"]
-default-members = ["crates/robocomp_rapier"]  # most dev work hits Rapier crate
+members = [".", "crates/robocomp_rapier3d", "crates/robocomp_test_utils"]
+default-members = ["crates/robocomp_rapier3d"]  # most dev work hits Rapier crate
 
 [workspace.dependencies]
 bevy = { version = "0.18", ... }
@@ -84,16 +84,16 @@ bevy = { version = "0.18", ... }
 
 **Core tests:** keep the existing `#[cfg(test)]` unit tests in `rd/mod.rs` (already Rapier-free).
 
-### Moves to `[crates/robocomp_rapier](crates/robocomp_rapier)`
+### Moves to `[crates/robocomp_rapier3d](crates/robocomp_rapier3d)`
 
 
 | From today                                                                      | Destination                                                 |
 | ------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `[src/pre_processor_plugin.rs](src/pre_processor_plugin.rs)`                    | `robocomp_rapier/src/pre_processor_plugin.rs`               |
-| `[src/controller_plugin.rs](src/controller_plugin.rs)`                          | `robocomp_rapier/src/controller_plugin.rs`                  |
-| Rapier `From` impls in `rd`/`rc`                                                | `robocomp_rapier/src/conversions.rs` (or `rd.rs` / `rc.rs`) |
-| All `[examples/](examples/)`                                                    | `crates/robocomp_rapier/examples/`                          |
-| `[tests/](tests/)` + `[tests/common/rapier.rs](tests/common/rapier.rs)`         | `crates/robocomp_rapier/tests/`                             |
+| `[src/pre_processor_plugin.rs](src/pre_processor_plugin.rs)`                    | `robocomp_rapier3d/src/pre_processor_plugin.rs`               |
+| `[src/controller_plugin.rs](src/controller_plugin.rs)`                          | `robocomp_rapier3d/src/controller_plugin.rs`                  |
+| Rapier `From` impls in `rd`/`rc`                                                | `robocomp_rapier3d/src/conversions.rs` (or `rd.rs` / `rc.rs`) |
+| All `[examples/](examples/)`                                                    | `crates/robocomp_rapier3d/examples/`                          |
+| `[tests/](tests/)` + `[tests/common/rapier.rs](tests/common/rapier.rs)`         | `crates/robocomp_rapier3d/tests/`                             |
 | Physics-agnostic test harness from `[tests/common/mod.rs](tests/common/mod.rs)` | `crates/robocomp_test_utils/` (shared)                      |
 
 
@@ -103,13 +103,13 @@ bevy = { version = "0.18", ... }
 | Plugin                         | Crate             | Role                                                                    |
 | ------------------------------ | ----------------- | ----------------------------------------------------------------------- |
 | `**RobocompPlugin`**           | `robocomp`        | Core: markers, reflection, Skein presets, cleanup (no physics spawning) |
-| `**RobocompRapierPlugin**`     | `robocomp_rapier` | Rapier extension: `RobocompPlugin` + `PreProcessorPlugin`               |
-| **`RobocompRapierControllerPlugin`** | `robocomp_rapier` | Motor control + IK (requires Rapier + pre-processor) |
+| `**RobocompRapierPlugin**`     | `robocomp_rapier3d` | Rapier extension: `RobocompPlugin` + `PreProcessorPlugin`               |
+| **`RobocompRapierControllerPlugin`** | `robocomp_rapier3d` | Motor control + IK (requires Rapier + pre-processor) |
 
 
 ```mermaid
 flowchart TD
-    subgraph rapier_crate [robocomp_rapier]
+    subgraph rapier_crate [robocomp_rapier3d]
         RobocompRapierPlugin --> RobocompPlugin
         RobocompRapierPlugin --> PreProcessorPlugin
         RobocompRapierControllerPlugin --> PreProcessorPlugin
@@ -124,10 +124,10 @@ flowchart TD
 
 
 
-### `robocomp_rapier` public API (end-user facing)
+### `robocomp_rapier3d` public API (end-user facing)
 
 ```rust
-// crates/robocomp_rapier/src/lib.rs
+// crates/robocomp_rapier3d/src/lib.rs
 pub use robocomp::*;                          // re-export entire core (includes RobocompPlugin)
 pub use robocomp::rd;
 pub use robocomp::rc;
@@ -148,16 +148,16 @@ app.add_plugins((
 
 **Migration note for downstream users:**
 
-- Change `robocomp` → `robocomp_rapier` in `Cargo.toml` for Rapier users.
+- Change `robocomp` → `robocomp_rapier3d` in `Cargo.toml` for Rapier users.
 - Replace `RobocompPlugin` with **`RobocompRapierPlugin`** in app setup (the old monolithic `RobocompPlugin` included pre-processing; that now lives in the Rapier extension).
 - Replace `RobocompControllerPlugin` with **`RobocompRapierControllerPlugin`**.
-- `use robocomp_rapier::{RobocompRapierPlugin, RobocompRapierControllerPlugin, rc::*, rd::*}` — core types still available via re-export; `RobocompPlugin` is also re-exported if you need core-only (e.g. custom physics backend).
+- `use robocomp_rapier3d::{RobocompRapierPlugin, RobocompRapierControllerPlugin, rc::*, rd::*}` — core types still available via re-export; `RobocompPlugin` is also re-exported if you need core-only (e.g. custom physics backend).
 
 ---
 
 ## Assets at workspace root
 
-Yes — keep `[assets/](assets/)` at the top level. Bevy resolves assets relative to each **package** root by default, so `crates/robocomp_rapier/examples/` must point upward.
+Yes — keep `[assets/](assets/)` at the top level. Bevy resolves assets relative to each **package** root by default, so `crates/robocomp_rapier3d/examples/` must point upward.
 
 Add a small shared helper (in `robocomp_test_utils` or `examples/helpers/scene_setup.rs`):
 
@@ -176,7 +176,7 @@ app.add_plugins(DefaultPlugins.set(AssetPlugin {
 }));
 ```
 
-Skein examples (`revolute.gltf`, `prismatic.gltf`) keep the same asset paths in code; only the `AssetPlugin` root changes. This also works when running `cargo run -p robocomp_rapier --example skein_revolute` from the workspace root.
+Skein examples (`revolute.gltf`, `prismatic.gltf`) keep the same asset paths in code; only the `AssetPlugin` root changes. This also works when running `cargo run -p robocomp_rapier3d --example skein_revolute` from the workspace root.
 
 ---
 
@@ -186,16 +186,16 @@ Skein examples (`revolute.gltf`, `prismatic.gltf`) keep the same asset paths in 
 | Location                            | Contents                                                                                                                                                             |
 | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Root `robocomp`**                 | Unit tests for `rd`/`rc` data logic; optional lightweight integration tests that assert `RcSceneRootIsProcessed` / `RcSceneRootReady` **without** physics components |
-| `**crates/robocomp_rapier`**        | All 7 current examples; integration tests that assert Rapier `Collider`/`RigidBody`/`ImpulseJoint`                                                                   |
+| `**crates/robocomp_rapier3d`**        | All 7 current examples; integration tests that assert Rapier `Collider`/`RigidBody`/`ImpulseJoint`                                                                   |
 | `**crates/robocomp_test_utils**`    | Shared, physics-agnostic harness (see next section)                                                                                                                  |
-| `**crates/robocomp_avian**` (later) | Thin examples (optional) + Avian-specific integration tests                                                                                                          |
+| `**crates/robocomp_avian3d**` (later) | Thin examples (optional) + Avian-specific integration tests                                                                                                          |
 
 
-**Yes:** today’s Rapier-coupled examples and integration tests move into `robocomp_rapier`. That is the correct home — they are backend demonstrations, not core API tests.
+**Yes:** today’s Rapier-coupled examples and integration tests move into `robocomp_rapier3d`. That is the correct home — they are backend demonstrations, not core API tests.
 
 ---
 
-## Avoiding duplication for `robocomp_avian`
+## Avoiding duplication for `robocomp_avian3d`
 
 Use a **three-layer test/example architecture** instead of copy-pasting scenarios per backend.
 
@@ -206,12 +206,12 @@ flowchart TB
         Harness["BevyTestingDefaultsPlugin, RobocompTestHarnessPlugin"]
         Ready["wait_for_scene_ready, serialize_scene_world"]
     end
-    subgraph rapier [robocomp_rapier/tests]
+    subgraph rapier [robocomp_rapier3d/tests]
         RapierHarness["RobocompRapierTestHarnessPlugin"]
         RapierValidate["validate_colliders, validate_links"]
         RapierTests["sample_test, multi_robots_test"]
     end
-    subgraph avian [robocomp_avian/tests later]
+    subgraph avian [robocomp_avian3d/tests later]
         AvianHarness["RobocompAvianTestHarnessPlugin"]
         AvianValidate["validate_colliders, validate_links"]
         AvianTests["same scenario functions, different harness"]
@@ -226,7 +226,7 @@ flowchart TB
 
 ### `robocomp_test_utils` — workspace-only, never published
 
-**You do not need to publish this crate**, and `**robocomp_rapier` can still be published** with it as a dev-dependency.
+**You do not need to publish this crate**, and `**robocomp_rapier3d` can still be published** with it as a dev-dependency.
 
 Per the [Cargo Book](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html):
 
@@ -239,7 +239,7 @@ And for dev-dependencies on publish:
 So the rules are:
 
 
-| Dev-dependency form                                       | Publish `robocomp_rapier`?                                                                                |
+| Dev-dependency form                                       | Publish `robocomp_rapier3d`?                                                                                |
 | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | `{ path = "../robocomp_test_utils" }` only (no `version`) | **Yes** — Cargo **strips** it from the published `Cargo.toml`                                             |
 | `{ path = "...", version = "0.1" }`                       | **No** — path is removed but `version` remains; publish verify expects `robocomp_test_utils` on crates.io |
@@ -251,7 +251,7 @@ So the rules are:
 name = "robocomp_test_utils"
 publish = false   # belt-and-suspenders: refuse accidental publish
 
-# crates/robocomp_rapier/Cargo.toml
+# crates/robocomp_rapier3d/Cargo.toml
 [dev-dependencies]
 # IMPORTANT: path only — do NOT add a version key
 robocomp_test_utils = { path = "../robocomp_test_utils" }
@@ -259,7 +259,7 @@ robocomp_test_utils = { path = "../robocomp_test_utils" }
 
 - `**publish = false**` on test_utils prevents accidentally publishing it.
 - **Path-only dev-dep** on rapier is stripped at publish time — not a blocker.
-- **What gets published:** only `robocomp` and `robocomp_rapier` (and later `robocomp_avian`). Downstream users depend on those; they never need `robocomp_test_utils`.
+- **What gets published:** only `robocomp` and `robocomp_rapier3d` (and later `robocomp_avian3d`). Downstream users depend on those; they never need `robocomp_test_utils`.
 - `**cargo test --workspace` from the git repo** resolves the path dep normally.
 
 **Caveat (acceptable):** the published `.crate` tarball still contains `tests/` source files that reference `robocomp_test_utils`, but the stripped dev-dep means `cargo test` on a crates.io download won't compile those tests. `cargo publish` verify only builds the library, not integration tests. Maintainers run full tests from the git workspace / CI.
@@ -288,8 +288,8 @@ pub trait PhysicsTestBackend {
 }
 ```
 
-- `robocomp_rapier::tests::RapierBackend` — today’s `[tests/common/rapier.rs](tests/common/rapier.rs)` logic
-- `robocomp_avian::tests::AvianBackend` — parallel impl later
+- `robocomp_rapier3d::tests::RapierBackend` — today’s `[tests/common/rapier.rs](tests/common/rapier.rs)` logic
+- `robocomp_avian3d::tests::AvianBackend` — parallel impl later
 
 ### Layer 3 — parameterized integration tests
 
@@ -303,14 +303,14 @@ pub fn run_multi_robots_test<B: PhysicsTestBackend>() { ... }
 Each backend crate has **thin** test files:
 
 ```rust
-// crates/robocomp_rapier/tests/sample.rs
+// crates/robocomp_rapier3d/tests/sample.rs
 #[test]
 fn sample_test() {
     robocomp_test_utils::run_sample_scene_test::<RapierBackend>();
 }
 ```
 
-When Avian lands, `crates/robocomp_avian/tests/sample.rs` is the same one-liner with `AvianBackend`. No scenario duplication.
+When Avian lands, `crates/robocomp_avian3d/tests/sample.rs` is the same one-liner with `AvianBackend`. No scenario duplication.
 
 ### Examples (optional parity, minimal cost)
 
@@ -326,26 +326,26 @@ You do **not** need full example parity in Avian on day one — integration test
 ## Migration steps (ordered)
 
 1. **Add workspace root `Cargo.toml`** — convert existing package manifest to workspace member; add `members` and `default-members`.
-2. **Strip Rapier from root `src/`** — remove `pre_processor_plugin`, `controller_plugin`, Rapier `From` impls; keep `RobocompPlugin` as the core-only plugin; update [`src/lib.rs`](src/lib.rs) exports (controller moves to `robocomp_rapier` as `RobocompRapierControllerPlugin`).
+2. **Strip Rapier from root `src/`** — remove `pre_processor_plugin`, `controller_plugin`, Rapier `From` impls; keep `RobocompPlugin` as the core-only plugin; update [`src/lib.rs`](src/lib.rs) exports (controller moves to `robocomp_rapier3d` as `RobocompRapierControllerPlugin`).
 3. **Create `crates/robocomp_test_utils`** — move physics-agnostic harness + extract scene fixtures from current tests.
-4. **Create `crates/robocomp_rapier`** — move Rapier plugins, conversions, examples, tests; depend on `robocomp` + `robocomp_test_utils` (dev); re-export core.
+4. **Create `crates/robocomp_rapier3d`** — move Rapier plugins, conversions, examples, tests; depend on `robocomp` + `robocomp_test_utils` (dev); re-export core.
 5. **Wire `AssetPlugin` path** in `scene_setup` helper for workspace-level `assets/`.
-6. **Update README** — document `robocomp` vs `robocomp_rapier` dependency choice; `cargo run -p robocomp_rapier --example revolute`.
-7. **CI** — `cargo test --workspace`; `cargo test -p robocomp` (core only); `cargo test -p robocomp_rapier`.
+6. **Update README** — document `robocomp` vs `robocomp_rapier3d` dependency choice; `cargo run -p robocomp_rapier3d --example revolute`.
+7. **CI** — `cargo test --workspace`; `cargo test -p robocomp` (core only); `cargo test -p robocomp_rapier3d`.
 
 ---
 
-## Future `robocomp_avian` checklist
+## Future `robocomp_avian3d` checklist
 
-When adding Avian, mirror `robocomp_rapier` exactly:
+When adding Avian, mirror `robocomp_rapier3d` exactly:
 
-- `crates/robocomp_avian/Cargo.toml` depends on `robocomp`, `avian3d` (or chosen crate)
+- `crates/robocomp_avian3d/Cargo.toml` depends on `robocomp`, `avian3d` (or chosen crate)
 - **`RobocompAvianPlugin`** — `RobocompPlugin` + Avian `pre_processor_plugin`
 - **`RobocompAvianControllerPlugin`** — Avian motor control + IK
 - `pre_processor_plugin` + `controller_plugin` Avian equivalents
 - `conversions.rs` for Avian joint/rigid-body types
 - `pub use robocomp::*` re-export
 - Tests: thin wrappers over `robocomp_test_utils::run_*_test::<AvianBackend>()`
-- Add `"crates/robocomp_avian"` to workspace `members`
+- Add `"crates/robocomp_avian3d"` to workspace `members`
 
 No changes to core `rd`/`rc` types or workspace `assets/` required.
