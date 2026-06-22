@@ -1,7 +1,12 @@
 [workspace]
 resolver = "2"
-members = [".", "crates/robocomp_rapier3d", "crates/robocomp_test_utils"]
-default-members = ["crates/robocomp_rapier3d"]
+members = [
+    ".",
+    "crates/robocomp_rapier3d",
+    "crates/robocomp_avian3d",
+    "crates/robocomp_test_utils",
+]
+default-members = ["."]
 
 [workspace.package]
 version = "0.1.0"
@@ -11,6 +16,7 @@ edition = "2024"
 [workspace.dependencies]
 bevy = { version = "0.18", default-features = false }
 bevy_rapier3d = "0.34"
+avian3d = "0.6.1"
 bevy_skein = "0.5"
 bevy-inspector-egui = "0.36"
 petgraph = "0.8"
