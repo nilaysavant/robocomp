@@ -228,7 +228,7 @@ fn apply_revolute_motor_control(
             }
             joint.motor.target_position = target_pos;
         }
-        MotorControlArgs::Velocity(target_vel, _factor) => {
+        MotorControlArgs::Velocity(target_vel) => {
             joint.motor.target_velocity = target_vel;
         }
     }
@@ -248,7 +248,7 @@ fn apply_prismatic_motor_control(
                 .map_or(target_pos, |limits| target_pos.clamp(limits.min, limits.max));
             joint.motor.target_position = target_pos;
         }
-        MotorControlArgs::Velocity(target_vel, _factor) => {
+        MotorControlArgs::Velocity(target_vel) => {
             joint.motor.target_velocity = target_vel;
         }
     }
@@ -286,21 +286,19 @@ fn get_motor_control_args(
         }
         RcJointMotorControlConfig::Velocity {
             normal_vel,
-            normal_factor,
             boost_vel,
-            boost_factor,
         } => {
-            let (mut new_target_vel, new_factor) = if shift_pressed && (w_pressed || s_pressed) {
-                (*boost_vel, *boost_factor)
+            let mut new_target_vel = if shift_pressed && (w_pressed || s_pressed) {
+                *boost_vel
             } else if w_pressed || s_pressed {
-                (*normal_vel, *normal_factor)
+                *normal_vel
             } else {
-                (0., 0.)
+                0.
             };
             if s_pressed {
                 new_target_vel *= -1.;
             }
-            MotorControlArgs::Velocity(new_target_vel, new_factor)
+            MotorControlArgs::Velocity(new_target_vel)
         }
     }
 }
@@ -308,5 +306,5 @@ fn get_motor_control_args(
 #[derive(Debug, Clone)]
 enum MotorControlArgs {
     Position(f32),
-    Velocity(f32, f32),
+    Velocity(f32),
 }

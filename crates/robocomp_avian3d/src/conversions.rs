@@ -39,7 +39,7 @@ pub fn angular_motor_from_rd(motor: &RdMotor) -> AngularMotor {
     let mut angular_motor = AngularMotor::new(motor_model_from_rd(motor.model.clone()));
 
     if let Some(velocity) = &motor.velocity {
-        angular_motor = angular_motor.with_target_velocity(velocity.target * velocity.factor);
+        angular_motor = angular_motor.with_target_velocity(velocity.target);
     }
     if let Some(position) = &motor.position {
         angular_motor = angular_motor.with_target_position(position.target);
@@ -55,7 +55,7 @@ pub fn linear_motor_from_rd(motor: &RdMotor) -> LinearMotor {
     let mut linear_motor = LinearMotor::new(motor_model_from_rd(motor.model.clone()));
 
     if let Some(velocity) = &motor.velocity {
-        linear_motor = linear_motor.with_target_velocity(velocity.target * velocity.factor);
+        linear_motor = linear_motor.with_target_velocity(velocity.target);
     }
     if let Some(position) = &motor.position {
         linear_motor = linear_motor.with_target_position(position.target);

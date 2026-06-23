@@ -240,7 +240,6 @@ impl Default for RdMotorModel {
 #[derive(Debug, Clone, Reflect)]
 pub struct RdMotorVelocity {
     pub target: RdScaler,
-    pub factor: RdScaler,
 }
 
 #[derive(Debug, Clone, Reflect)]
@@ -309,10 +308,7 @@ mod test {
                 local_anchor1: Vec3::Y / 2.,
                 local_anchor2: Vec3::Y / 2.,
                 motor: RdMotor {
-                    velocity: Some(RdMotorVelocity {
-                        target: 0.0,
-                        factor: 1.0,
-                    }),
+                    velocity: Some(RdMotorVelocity { target: 0.0 }),
                     ..Default::default()
                 },
                 limits: None,
@@ -338,10 +334,7 @@ mod test {
                         && joint.child == *robot.get_link(&RdName::new("link_2")).unwrap()
                     {
                         if let RdJointKind::Revolute(ref mut data) = joint.kind {
-                            data.motor.velocity = Some(RdMotorVelocity {
-                                target: 10.0,
-                                factor: 1.0,
-                            });
+                            data.motor.velocity = Some(RdMotorVelocity { target: 10.0 });
                         }
                     }
                 }
@@ -354,9 +347,8 @@ mod test {
         // Check if the motor velocity was updated...
         let joint = app.world().get::<RdJoint<Entity>>(joint_1).unwrap();
         if let RdJointKind::Revolute(data) = &joint.kind {
-            if let Some(RdMotorVelocity { target, factor }) = data.motor.velocity {
+            if let Some(RdMotorVelocity { target }) = data.motor.velocity {
                 assert_eq!(target, 10.0);
-                assert_eq!(factor, 1.0);
             } else {
                 panic!("Motor velocity is not set!");
             }

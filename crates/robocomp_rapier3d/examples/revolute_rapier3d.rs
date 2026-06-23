@@ -99,11 +99,11 @@ fn cube_revolute_cube_robot(
                     axis: Vec3::Y,
                 },
                 RcRevoluteJointMotor {
-                    model: RdMotorModel::default(),
-                    velocity: Some(RdMotorVelocity {
-                        target: 1.,
-                        factor: 1.,
-                    }),
+                    model: RdMotorModel::AccelerationBased {
+                        stiffness: 0.,
+                        damping: 1.,
+                    },
+                    velocity: Some(RdMotorVelocity { target: 1. }),
                     position: None,
                     max_force: None,
                 },

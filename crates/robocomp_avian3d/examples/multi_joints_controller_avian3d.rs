@@ -128,19 +128,14 @@ fn multi_joint_robot(
                         stiffness: 0.,
                         damping: REVOLUTE_MOTOR_DAMPING,
                     },
-                    velocity: Some(RdMotorVelocity {
-                        target: 0.,
-                        factor: 0.,
-                    }),
+                    velocity: Some(RdMotorVelocity { target: 0. }),
                     position: None,
                     max_force: None,
                 },
                 // Configuration for the motor controller for the revolute joint...
                 RcJointMotorControlConfig::Velocity {
                     normal_vel: REVOLUTE_MOTOR_NORMAL_VEL,
-                    normal_factor: 0.,
                     boost_vel: REVOLUTE_MOTOR_BOOST_VEL,
-                    boost_factor: 0.,
                 },
                 Transform::from_translation(Vec3::new(0., CUBE_SIZE, 0.)),
             ),
@@ -221,19 +216,14 @@ fn multi_joint_robot(
                         stiffness: 0.,
                         damping: REVOLUTE_MOTOR_DAMPING,
                     },
-                    velocity: Some(RdMotorVelocity {
-                        target: 0.,
-                        factor: 0.,
-                    }),
+                    velocity: Some(RdMotorVelocity { target: 0. }),
                     position: None,
                     max_force: None,
                 },
                 // Configuration for the motor controller for the revolute joint...
                 RcJointMotorControlConfig::Velocity {
                     normal_vel: REVOLUTE_MOTOR_NORMAL_VEL,
-                    normal_factor: 0.,
                     boost_vel: REVOLUTE_MOTOR_BOOST_VEL,
-                    boost_factor: 0.,
                 },
                 Transform::from_translation(Vec3::new(
                     CUBE_SIZE + HALF,

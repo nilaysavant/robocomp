@@ -428,9 +428,7 @@ pub enum RcJointMotorControlConfig {
     /// Config for Velocity Control of the Joint Motor.
     Velocity {
         normal_vel: f32,
-        normal_factor: f32,
         boost_vel: f32,
-        boost_factor: f32,
     },
 }
 

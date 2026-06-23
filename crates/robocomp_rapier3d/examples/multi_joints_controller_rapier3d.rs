@@ -39,9 +39,8 @@ const JOINTS: [&str; 4] = [
 
 /// Motor control tuned for unit-sized cubes and the multi-link chain's added inertia.
 const MOTOR_CONTROL_NORMAL_VEL: f32 = 10.;
-const MOTOR_CONTROL_NORMAL_FACTOR: f32 = 125.;
+const MOTOR_CONTROL_DAMPING: f32 = 125.;
 const MOTOR_CONTROL_BOOST_VEL: f32 = 20.;
-const MOTOR_CONTROL_BOOST_FACTOR: f32 = 200.;
 const PRISMATIC_MOTOR_CONTROL_NORM_ANG_VEL: f32 = 4.;
 const PRISMATIC_MOTOR_CONTROL_BOOST_ANG_VEL: f32 = 8.;
 /// Softer than the standalone prismatic example — the multi-link chain is less stable
@@ -130,21 +129,16 @@ fn multi_joint_robot(
                 RcRevoluteJointMotor {
                     model: RdMotorModel::AccelerationBased {
                         stiffness: 0.,
-                        damping: 0.1,
+                        damping: MOTOR_CONTROL_DAMPING,
                     },
-                    velocity: Some(RdMotorVelocity {
-                        target: 0.,
-                        factor: 0.,
-                    }),
+                    velocity: Some(RdMotorVelocity { target: 0. }),
                     position: None,
                     max_force: None,
                 },
                 // Configuration for the motor controller for the revolute joint...
                 RcJointMotorControlConfig::Velocity {
                     normal_vel: MOTOR_CONTROL_NORMAL_VEL,
-                    normal_factor: MOTOR_CONTROL_NORMAL_FACTOR,
                     boost_vel: MOTOR_CONTROL_BOOST_VEL,
-                    boost_factor: MOTOR_CONTROL_BOOST_FACTOR,
                 },
                 Transform::from_translation(Vec3::new(0., CUBE_SIZE, 0.)),
             ),
@@ -223,21 +217,16 @@ fn multi_joint_robot(
                 RcRevoluteJointMotor {
                     model: RdMotorModel::AccelerationBased {
                         stiffness: 0.,
-                        damping: 0.1,
+                        damping: MOTOR_CONTROL_DAMPING,
                     },
-                    velocity: Some(RdMotorVelocity {
-                        target: 0.,
-                        factor: 0.,
-                    }),
+                    velocity: Some(RdMotorVelocity { target: 0. }),
                     position: None,
                     max_force: None,
                 },
                 // Configuration for the motor controller for the revolute joint...
                 RcJointMotorControlConfig::Velocity {
                     normal_vel: MOTOR_CONTROL_NORMAL_VEL,
-                    normal_factor: MOTOR_CONTROL_NORMAL_FACTOR,
                     boost_vel: MOTOR_CONTROL_BOOST_VEL,
-                    boost_factor: MOTOR_CONTROL_BOOST_FACTOR,
                 },
                 Transform::from_translation(Vec3::new(
                     CUBE_SIZE + HALF,

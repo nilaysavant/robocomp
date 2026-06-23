@@ -426,7 +426,8 @@ pub fn process_joint_markers(
                 {
                     joint = joint.motor_model(conversions::rapier_motor_model_from_rd(&model));
                     if let Some(velocity) = velocity {
-                        joint = joint.motor_velocity(velocity.target, velocity.factor);
+                        let (_, damping) = conversions::stiffness_damping_from_rd(&model);
+                        joint = joint.motor_velocity(velocity.target, damping);
                     }
                     if let Some(position) = position {
                         let (stiffness, damping) =
@@ -457,7 +458,8 @@ pub fn process_joint_markers(
                 {
                     joint = joint.motor_model(conversions::rapier_motor_model_from_rd(&model));
                     if let Some(velocity) = velocity {
-                        joint = joint.motor_velocity(velocity.target, velocity.factor);
+                        let (_, damping) = conversions::stiffness_damping_from_rd(&model);
+                        joint = joint.motor_velocity(velocity.target, damping);
                     }
                     if let Some(position) = position {
                         let (stiffness, damping) =
@@ -508,25 +510,19 @@ pub fn process_joint_markers(
                             conversions::rapier_motor_model_from_rd(&model_ang_z),
                         );
                     if let Some(velocity_ang_x) = velocity_ang_x {
-                        joint = joint.motor_velocity(
-                            JointAxis::AngX,
-                            velocity_ang_x.target,
-                            velocity_ang_x.factor,
-                        );
+                        let (_, damping) =
+                            conversions::stiffness_damping_from_rd(&model_ang_x);
+                        joint = joint.motor_velocity(JointAxis::AngX, velocity_ang_x.target, damping);
                     }
                     if let Some(velocity_ang_y) = velocity_ang_y {
-                        joint = joint.motor_velocity(
-                            JointAxis::AngY,
-                            velocity_ang_y.target,
-                            velocity_ang_y.factor,
-                        );
+                        let (_, damping) =
+                            conversions::stiffness_damping_from_rd(&model_ang_y);
+                        joint = joint.motor_velocity(JointAxis::AngY, velocity_ang_y.target, damping);
                     }
                     if let Some(velocity_ang_z) = velocity_ang_z {
-                        joint = joint.motor_velocity(
-                            JointAxis::AngZ,
-                            velocity_ang_z.target,
-                            velocity_ang_z.factor,
-                        );
+                        let (_, damping) =
+                            conversions::stiffness_damping_from_rd(&model_ang_z);
+                        joint = joint.motor_velocity(JointAxis::AngZ, velocity_ang_z.target, damping);
                     }
                     if let Some(position_ang_x) = position_ang_x {
                         let (stiffness, damping) =

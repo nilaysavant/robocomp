@@ -36,7 +36,8 @@ fn apply_motor_to_revolute_builder(
 ) -> RevoluteJointBuilder {
     builder = builder.motor_model(rapier_motor_model_from_rd(&motor.model));
     if let Some(motor_velocity) = motor.velocity {
-        builder = builder.motor_velocity(motor_velocity.target, motor_velocity.factor);
+        let (_, damping) = stiffness_damping_from_rd(&motor.model);
+        builder = builder.motor_velocity(motor_velocity.target, damping);
     }
     if let Some(motor_position) = motor.position {
         let (stiffness, damping) = stiffness_damping_from_rd(&motor.model);
@@ -54,7 +55,8 @@ fn apply_motor_to_prismatic_builder(
 ) -> PrismaticJointBuilder {
     builder = builder.motor_model(rapier_motor_model_from_rd(&motor.model));
     if let Some(motor_velocity) = motor.velocity {
-        builder = builder.motor_velocity(motor_velocity.target, motor_velocity.factor);
+        let (_, damping) = stiffness_damping_from_rd(&motor.model);
+        builder = builder.motor_velocity(motor_velocity.target, damping);
     }
     if let Some(motor_position) = motor.position {
         let (stiffness, damping) = stiffness_damping_from_rd(&motor.model);
@@ -134,11 +136,8 @@ pub fn spherical_joint_builder_from_rd(value: RdSphericalJointData) -> Spherical
                 };
                 builder = builder.motor_model(axis, rapier_motor_model_from_rd(&motor.model));
                 if let Some(motor_velocity) = &motor.velocity {
-                    builder = builder.motor_velocity(
-                        axis,
-                        motor_velocity.target,
-                        motor_velocity.factor,
-                    );
+                    let (_, damping) = stiffness_damping_from_rd(&motor.model);
+                    builder = builder.motor_velocity(axis, motor_velocity.target, damping);
                 }
                 if let Some(motor_position) = &motor.position {
                     let (stiffness, damping) = stiffness_damping_from_rd(&motor.model);

@@ -11,11 +11,12 @@ use bevy_rapier3d::{
 
 use robocomp::rc::{
     BelongsToRcSceneRoot, RcIkAffectedLinks, RcIkTarget, RcIkTargetSource,
-    RcJointMotorControlConfig, RcLink, RcRobotGraph, RcRobotGraphJoint, RcRobotRoot, RcSceneRoot,
-    RcSceneRootReady, RcSceneRootWRobotRootsDetached,
+    RcJointMotorControlConfig, RcLink, RcPrismaticJointMotor, RcRevoluteJointMotor,
+    RcRobotGraph, RcRobotGraphJoint, RcRobotRoot, RcSceneRoot, RcSceneRootReady,
+    RcSceneRootWRobotRootsDetached,
 };
 
-use crate::pre_processor_plugin::PreProcessorPluginSystemSet;
+use crate::{conversions::stiffness_damping_from_rd, pre_processor_plugin::PreProcessorPluginSystemSet};
 
 /// Plugin for Controlling Robocomp Robots with Rapier.
 pub struct RobocompRapierControllerPlugin;
@@ -286,7 +287,15 @@ pub fn apply_ik_target_tracking(
 
 pub fn impulse_joint_controller_system(
     robot_roots: Query<(Entity, &ActiveJointControlTracker), With<RcRobotRoot>>,
-    mut joints: Query<(&RcJointMotorControlConfig, &mut ImpulseJoint), With<RcLink>>,
+    mut joints: Query<
+        (
+            &RcJointMotorControlConfig,
+            &mut ImpulseJoint,
+            Option<&RcRevoluteJointMotor>,
+            Option<&RcPrismaticJointMotor>,
+        ),
+        With<RcLink>,
+    >,
     key_input: Res<ButtonInput<KeyCode>>,
     time: Res<Time<Fixed>>,
 ) {
@@ -294,10 +303,16 @@ pub fn impulse_joint_controller_system(
         let Some(generic_joint_entity) = active_joint_tracker.active() else {
             continue;
         };
-        let Ok((joint_motor_control_config, mut joint)) = joints.get_mut(*generic_joint_entity)
+        let Ok((
+            joint_motor_control_config,
+            mut joint,
+            revolute_joint_motor,
+            prismatic_joint_motor,
+        )) = joints.get_mut(*generic_joint_entity)
         else {
             continue;
         };
+        let velocity_damping = motor_velocity_damping(revolute_joint_motor, prismatic_joint_motor);
         match joint.data {
             TypedJoint::FixedJoint(..) => {
                 // No motor control for fixed joints...
@@ -323,8 +338,8 @@ pub fn impulse_joint_controller_system(
                             prismatic.set_motor_position(target_pos, stiffness, damping);
                         }
                     }
-                    MotorControlArgs::Velocity(target_vel, factor) => {
-                        prismatic.set_motor_velocity(target_vel, factor);
+                    MotorControlArgs::Velocity(target_vel) => {
+                        prismatic.set_motor_velocity(target_vel, velocity_damping);
                     }
                 }
             }
@@ -350,8 +365,8 @@ pub fn impulse_joint_controller_system(
                             revolute.set_motor_position(target_pos % TAU, stiffness, damping);
                         }
                     }
-                    MotorControlArgs::Velocity(target_vel, factor) => {
-                        revolute.set_motor_velocity(target_vel, factor);
+                    MotorControlArgs::Velocity(target_vel) => {
+                        revolute.set_motor_velocity(target_vel, velocity_damping);
                     }
                 }
             }
@@ -364,6 +379,19 @@ pub fn impulse_joint_controller_system(
             _ => {}
         }
     }
+}
+
+/// Damping for Rapier velocity motors, sourced from [`RdMotorModel`].
+fn motor_velocity_damping(
+    revolute_joint_motor: Option<&RcRevoluteJointMotor>,
+    prismatic_joint_motor: Option<&RcPrismaticJointMotor>,
+) -> f32 {
+    revolute_joint_motor
+        .map(|motor| stiffness_damping_from_rd(&motor.model).1)
+        .or_else(|| {
+            prismatic_joint_motor.map(|motor| stiffness_damping_from_rd(&motor.model).1)
+        })
+        .unwrap_or(0.)
 }
 
 /// Get the motor control arguments based on the key input, configuration, time and current motor state.
@@ -407,17 +435,15 @@ fn get_motor_control_args(
         }
         RcJointMotorControlConfig::Velocity {
             normal_vel,
-            normal_factor,
             boost_vel,
-            boost_factor,
         } => {
-            let (mut new_target_vel, new_factor) = if shift_pressed && (w_pressed || s_pressed) {
+            let mut new_target_vel = if shift_pressed && (w_pressed || s_pressed) {
                 debug!("Key Shift pressed...");
-                (*boost_vel, *boost_factor)
+                *boost_vel
             } else if w_pressed || s_pressed {
-                (*normal_vel, *normal_factor)
+                *normal_vel
             } else {
-                (0., 0.)
+                0.
             };
             if w_pressed {
                 debug!("Key W pressed...");
@@ -426,7 +452,7 @@ fn get_motor_control_args(
                 debug!("Key S pressed...");
                 new_target_vel *= -1.;
             }
-            MotorControlArgs::Velocity(new_target_vel, new_factor)
+            MotorControlArgs::Velocity(new_target_vel)
         }
     }
 }
@@ -435,5 +461,5 @@ fn get_motor_control_args(
 #[derive(Debug, Clone)]
 enum MotorControlArgs {
     Position(f32),
-    Velocity(f32, f32),
+    Velocity(f32),
 }
