@@ -412,7 +412,7 @@ pub enum RcJointKind {
 /// Optionally add to the same node as [`RcJoint`].
 /// Also requires [`RcRevoluteJointMotor`] or equivalent to be added to the same node.
 #[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[reflect(Component, Default)]
 pub enum RcJointMotorControlConfig {
     /// Config for Position Control of the Joint Motor.
     Position {
@@ -452,8 +452,8 @@ impl Default for RcJointMotorControlConfig {
 /// Configuring Revolute Joint Motor.
 ///
 /// Add to the same node as [`RcJoint`].
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcRevoluteJointMotor {
     pub model: RdMotorModel,
     pub velocity: Option<RdMotorVelocity>,
@@ -471,8 +471,8 @@ pub struct RcRevoluteJointLimits(pub RdJointLimits);
 /// Configuring Prismatic Joint Motor.
 ///
 /// Add to the same node as [`RcJoint`].
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcPrismaticJointMotor {
     pub model: RdMotorModel,
     pub velocity: Option<RdMotorVelocity>,
@@ -490,8 +490,8 @@ pub struct RcPrismaticJointLimits(pub RdJointLimits);
 /// Configuring Spherical Joint Motor.
 ///
 /// Add to the same node as [`RcJoint`].
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcSphericalJointMotor {
     // Model x, y, z
     pub model_ang_x: RdMotorModel,

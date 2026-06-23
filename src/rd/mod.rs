@@ -212,6 +212,7 @@ pub struct RdMotor {
 }
 
 #[derive(Debug, Clone, Reflect)]
+#[reflect(Default)]
 pub enum RdMotorModel {
     SpringDamper {
         frequency: f32,
@@ -231,7 +232,7 @@ impl Default for RdMotorModel {
     fn default() -> Self {
         Self::AccelerationBased {
             stiffness: 0.0,
-            damping: 1.0,
+            damping: 0.1,
         }
     }
 }
