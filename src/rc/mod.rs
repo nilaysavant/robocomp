@@ -424,10 +424,6 @@ pub enum RcJointMotorControlConfig {
         ///
         /// This is added every physics update to the motor's position during control action.
         norm_ang_vel: f32,
-        /// Stiffness set on the joint motor(s).
-        stiffness: f32,
-        /// Damping set on the joint motor(s).
-        damping: f32,
     },
     /// Config for Velocity Control of the Joint Motor.
     Velocity {
@@ -443,8 +439,6 @@ impl Default for RcJointMotorControlConfig {
         Self::Position {
             boost_ang_vel: PI,       // 180 degrees per second.
             norm_ang_vel: FRAC_PI_2, // 90 degrees per second.
-            stiffness: 5000.0,
-            damping: 650.0,
         }
     }
 }

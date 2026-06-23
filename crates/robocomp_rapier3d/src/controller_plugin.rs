@@ -310,7 +310,9 @@ pub fn impulse_joint_controller_system(
                     continue;
                 };
                 match get_motor_control_args(&key_input, joint_motor_control_config, &time, motor) {
-                    MotorControlArgs::Position(target_pos, stiffness, damping) => {
+                    MotorControlArgs::Position(target_pos) => {
+                        let stiffness = motor.stiffness;
+                        let damping = motor.damping;
                         if let Some(&JointLimits { min, max, .. }) = prismatic.limits() {
                             prismatic.set_motor_position(
                                 target_pos.clamp(min, max),
@@ -334,7 +336,9 @@ pub fn impulse_joint_controller_system(
                     continue;
                 };
                 match get_motor_control_args(&key_input, joint_motor_control_config, &time, motor) {
-                    MotorControlArgs::Position(target_pos, stiffness, damping) => {
+                    MotorControlArgs::Position(target_pos) => {
+                        let stiffness = motor.stiffness;
+                        let damping = motor.damping;
                         if let Some(&JointLimits { min, max, .. }) = revolute.limits() {
                             revolute.set_motor_position(
                                 target_pos.clamp(min, max),
@@ -378,8 +382,6 @@ fn get_motor_control_args(
         RcJointMotorControlConfig::Position {
             boost_ang_vel,
             norm_ang_vel,
-            stiffness,
-            damping,
         } => {
             let mut new_target_pos = current_motor_state.target_pos;
             // Apply boost or normal velocity based on key input...
@@ -401,7 +403,7 @@ fn get_motor_control_args(
             } else {
                 new_target_pos = current_motor_state.target_pos;
             }
-            MotorControlArgs::Position(new_target_pos, *stiffness, *damping)
+            MotorControlArgs::Position(new_target_pos)
         }
         RcJointMotorControlConfig::Velocity {
             normal_vel,
@@ -432,6 +434,6 @@ fn get_motor_control_args(
 /// Arguments for controlling the motor.
 #[derive(Debug, Clone)]
 enum MotorControlArgs {
-    Position(f32, f32, f32),
+    Position(f32),
     Velocity(f32, f32),
 }

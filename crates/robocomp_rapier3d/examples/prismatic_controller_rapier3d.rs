@@ -13,7 +13,7 @@ use robocomp_rapier3d::{
         RcJointMotorControlConfig, RcLink, RcLinkRoot, RcPrismaticJointLimits,
         RcPrismaticJointMotor, RcRigidBody, RcRobotRoot, RcSceneRoot,
     },
-    rd::{RdJointLimits, RdMotorModel, RdMotorVelocity, RdName},
+    rd::{RdJointLimits, RdMotorModel, RdMotorPosition, RdName},
 };
 
 use crate::scene_setup::SceneSetupPlugin;
@@ -105,23 +105,18 @@ fn cube_revolute_cube_robot(
                 },
                 RcPrismaticJointMotor {
                     model: RdMotorModel::AccelerationBased {
-                        stiffness: 0.,
-                        damping: 0.1,
+                        stiffness: 5000.,
+                        damping: 650.,
                     },
-                    velocity: Some(RdMotorVelocity {
-                        target: 0.,
-                        factor: 0.
-                    }),
-                    position: None,
+                    velocity: None,
+                    position: Some(RdMotorPosition { target: 0. }),
                     max_force: None,
                 },
                 RcPrismaticJointLimits(RdJointLimits { min: 0., max: 2.5 }), // Limit the prismatic joint.
                 // Configuration for the motor controller for the prismatic joint...
-                RcJointMotorControlConfig::Velocity {
-                    normal_vel: 4.,
-                    normal_factor: 10.,
-                    boost_vel: 8.,
-                    boost_factor: 10.0
+                RcJointMotorControlConfig::Position {
+                    norm_ang_vel: 4.,
+                    boost_ang_vel: 8.,
                 },
                 Transform::from_translation(Vec3::new(1., 0.5, 0.)),
             ),

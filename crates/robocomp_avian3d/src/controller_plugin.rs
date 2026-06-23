@@ -36,7 +36,7 @@ impl Plugin for RobocompAvianControllerPlugin {
                 active_joint_change_handler.in_set(ControllerPluginSystemSet),
             )
             .add_systems(
-                FixedUpdate,
+                FixedPostUpdate,
                 joint_controller_system.in_set(ControllerMotorSystemSet),
             )
             .add_systems(
@@ -204,12 +204,12 @@ pub fn joint_controller_system(
         };
 
         if let Ok((config, mut joint)) = revolute_joints.get_mut(*joint_entity) {
-            apply_revolute_motor_control(&key_input, config, &time, &mut joint.motor);
+            apply_revolute_motor_control(&key_input, config, &time, &mut joint);
             continue;
         }
 
         if let Ok((config, mut joint)) = prismatic_joints.get_mut(*joint_entity) {
-            apply_prismatic_motor_control(&key_input, config, &time, &mut joint.motor);
+            apply_prismatic_motor_control(&key_input, config, &time, &mut joint);
         }
     }
 }
@@ -218,15 +218,18 @@ fn apply_revolute_motor_control(
     key_input: &ButtonInput<KeyCode>,
     config: &RcJointMotorControlConfig,
     time: &Time<Fixed>,
-    motor: &mut AngularMotor,
+    joint: &mut RevoluteJoint,
 ) {
-    match get_motor_control_args(key_input, config, time, motor.target_position) {
-        MotorControlArgs::Position(target_pos, stiffness, damping) => {
-            motor.target_position = target_pos % TAU;
-            motor.motor_model = MotorModel::AccelerationBased { stiffness, damping };
+    match get_motor_control_args(key_input, config, time, joint.motor.target_position) {
+        MotorControlArgs::Position(mut target_pos) => {
+            target_pos %= TAU;
+            if let Some(limit) = &joint.angle_limit {
+                target_pos = target_pos.clamp(limit.min, limit.max);
+            }
+            joint.motor.target_position = target_pos;
         }
         MotorControlArgs::Velocity(target_vel, _factor) => {
-            motor.target_velocity = target_vel;
+            joint.motor.target_velocity = target_vel;
         }
     }
 }
@@ -235,15 +238,18 @@ fn apply_prismatic_motor_control(
     key_input: &ButtonInput<KeyCode>,
     config: &RcJointMotorControlConfig,
     time: &Time<Fixed>,
-    motor: &mut LinearMotor,
+    joint: &mut PrismaticJoint,
 ) {
-    match get_motor_control_args(key_input, config, time, motor.target_position) {
-        MotorControlArgs::Position(target_pos, stiffness, damping) => {
-            motor.target_position = target_pos;
-            motor.motor_model = MotorModel::AccelerationBased { stiffness, damping };
+    match get_motor_control_args(key_input, config, time, joint.motor.target_position) {
+        MotorControlArgs::Position(target_pos) => {
+            let target_pos = joint
+                .limits
+                .as_ref()
+                .map_or(target_pos, |limits| target_pos.clamp(limits.min, limits.max));
+            joint.motor.target_position = target_pos;
         }
         MotorControlArgs::Velocity(target_vel, _factor) => {
-            motor.target_velocity = target_vel;
+            joint.motor.target_velocity = target_vel;
         }
     }
 }
@@ -262,8 +268,6 @@ fn get_motor_control_args(
         RcJointMotorControlConfig::Position {
             boost_ang_vel,
             norm_ang_vel,
-            stiffness,
-            damping,
         } => {
             let mut new_target_pos = current_target_pos;
             let new_velocity = if shift_pressed && (w_pressed || s_pressed) {
@@ -278,7 +282,7 @@ fn get_motor_control_args(
             } else if s_pressed {
                 new_target_pos -= new_velocity * time.delta_secs();
             }
-            MotorControlArgs::Position(new_target_pos, *stiffness, *damping)
+            MotorControlArgs::Position(new_target_pos)
         }
         RcJointMotorControlConfig::Velocity {
             normal_vel,
@@ -303,6 +307,6 @@ fn get_motor_control_args(
 
 #[derive(Debug, Clone)]
 enum MotorControlArgs {
-    Position(f32, f32, f32),
+    Position(f32),
     Velocity(f32, f32),
 }
