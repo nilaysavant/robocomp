@@ -20,7 +20,7 @@ The [Rapier][bevy-rapier-github] physics plugin must be added **alongside** the 
 robocomp_rapier3d = "0.1"
 ```
 
-```rust
+```rust,ignore
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 use robocomp_rapier3d::{RobocompRapierPlugin, rc::RcSceneRoot};
@@ -33,7 +33,7 @@ app.add_plugins((
 
 Controller-driven examples also require `RobocompRapierControllerPlugin`:
 
-```rust
+```rust,ignore
 use robocomp_rapier3d::{RobocompRapierControllerPlugin, RobocompRapierPlugin};
 
 app.add_plugins((

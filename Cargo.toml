@@ -12,6 +12,11 @@ default-members = ["."]
 version = "0.1.0"
 authors = ["Nilay Savant"]
 edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/nilaysavant/robocomp"
+homepage = "https://github.com/nilaysavant/robocomp"
+keywords = ["bevy", "physics", "robotics", "urdf", "gltf", "blender"]
+categories = ["game-development", "simulation"]
 
 [workspace.dependencies]
 bevy = { version = "0.18", default-features = false }
@@ -20,14 +25,21 @@ avian3d = "0.6.1"
 bevy_skein = "0.5"
 bevy-inspector-egui = "0.36"
 petgraph = "0.8"
-robocomp = { path = "." }
+robocomp = { version = "0.1.0", path = "." }
 
 [package]
 name = "robocomp"
-version.workspace = true
-authors.workspace = true
-edition.workspace = true
 description = "Bevy Plugin for Robot/Rigid-Body Composition using URDF inspired physics agnostic components. For use with editors like Blender (via Skein) etc."
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+documentation = "https://docs.rs/robocomp"
+exclude = [".cursor/", ".github/", "assets/", "blender/", "crates/"]
 
 [dependencies]
 bevy = { workspace = true, features = ["bevy_render", "bevy_log"] }

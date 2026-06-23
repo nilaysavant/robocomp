@@ -20,7 +20,7 @@ The [Avian][avian-github] physics plugin must be added **alongside** the robocom
 robocomp_avian3d = "0.1"
 ```
 
-```rust
+```rust,ignore
 use bevy::prelude::*;
 use avian3d::prelude::*;
 use robocomp_avian3d::{RobocompAvianPlugin, rc::RcSceneRoot};
@@ -33,7 +33,7 @@ app.add_plugins((
 
 Controller-driven examples also require `RobocompAvianControllerPlugin`:
 
-```rust
+```rust,ignore
 use robocomp_avian3d::{RobocompAvianControllerPlugin, RobocompAvianPlugin};
 
 app.add_plugins((

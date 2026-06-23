@@ -24,7 +24,7 @@ For Rapier 3D simulations, depend on `robocomp_rapier3d`:
 robocomp_rapier3d = "0.1"
 ```
 
-```rust
+```rust,ignore
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 use robocomp_rapier3d::{RobocompRapierPlugin, rc::RcSceneRoot};
@@ -44,7 +44,7 @@ For Avian 3D simulations, depend on `robocomp_avian3d`:
 robocomp_avian3d = "0.1"
 ```
 
-```rust
+```rust,ignore
 use bevy::prelude::*;
 use avian3d::prelude::*;
 use robocomp_avian3d::{RobocompAvianPlugin, rc::RcSceneRoot};

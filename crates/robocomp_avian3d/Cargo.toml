@@ -1,9 +1,16 @@
 [package]
 name = "robocomp_avian3d"
-version.workspace = true
-authors.workspace = true
-edition.workspace = true
 description = "Avian physics integration for robocomp"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+documentation = "https://docs.rs/robocomp_avian3d"
+exclude = ["tests/"]
 
 [dependencies]
 bevy = { workspace = true, features = ["bevy_render"] }

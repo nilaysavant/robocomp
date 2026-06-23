@@ -1,5 +1,6 @@
 #![allow(clippy::type_complexity)]
 #![allow(clippy::too_many_arguments)]
+#![doc = include_str!("../README.md")]
 
 mod controller_plugin;
 mod conversions;
