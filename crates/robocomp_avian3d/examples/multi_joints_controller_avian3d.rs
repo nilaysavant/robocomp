@@ -40,6 +40,8 @@ const MOTOR_CONTROL_NORMAL_VEL: f32 = 4.;
 const MOTOR_CONTROL_NORMAL_FACTOR: f32 = 8.;
 const MOTOR_CONTROL_BOOST_VEL: f32 = 8.;
 const MOTOR_CONTROL_BOOST_FACTOR: f32 = 16.;
+const PRISMATIC_MOTOR_CONTROL_NORM_ANG_VEL: f32 = 4.;
+const PRISMATIC_MOTOR_CONTROL_BOOST_ANG_VEL: f32 = 8.;
 
 fn main() {
     let mut app = App::new();
@@ -165,14 +167,13 @@ fn multi_joint_robot(
                     axis: Vec3::X,
                 },
                 RcPrismaticJointMotor {
-                    model: RdMotorModel::AccelerationBased {
-                        stiffness: 0.,
-                        damping: 0.1,
+                    // Roughly equivalent to the Rapier example's AccelerationBased
+                    // { stiffness: 5000., damping: 650. }.
+                    model: RdMotorModel::SpringDamper {
+                        frequency: 11.25,
+                        damping_ratio: 4.6,
                     },
-                    velocity: Some(RdMotorVelocity {
-                        target: 0.,
-                        factor: 0.,
-                    }),
+                    velocity: None,
                     position: Some(RdMotorPosition { target: 0. }),
                     max_force: None,
                 },
@@ -181,11 +182,9 @@ fn multi_joint_robot(
                     max: CUBE_SIZE,
                 }), // Limit the prismatic joint.
                 // Configuration for the motor controller for the prismatic joint...
-                RcJointMotorControlConfig::Velocity {
-                    normal_vel: MOTOR_CONTROL_NORMAL_VEL,
-                    normal_factor: MOTOR_CONTROL_NORMAL_FACTOR,
-                    boost_vel: MOTOR_CONTROL_BOOST_VEL,
-                    boost_factor: MOTOR_CONTROL_BOOST_FACTOR,
+                RcJointMotorControlConfig::Position {
+                    norm_ang_vel: PRISMATIC_MOTOR_CONTROL_NORM_ANG_VEL,
+                    boost_ang_vel: PRISMATIC_MOTOR_CONTROL_BOOST_ANG_VEL,
                 },
                 Transform::from_translation(Vec3::new(
                     HALF,
@@ -267,27 +266,24 @@ fn multi_joint_robot(
                     axis: Vec3::X,
                 },
                 RcPrismaticJointMotor {
-                    model: RdMotorModel::AccelerationBased {
-                        stiffness: 0.,
-                        damping: 0.1,
+                    // Roughly equivalent to the Rapier example's AccelerationBased
+                    // { stiffness: 5000., damping: 650. }.
+                    model: RdMotorModel::SpringDamper {
+                        frequency: 11.25,
+                        damping_ratio: 4.6,
                     },
-                    velocity: Some(RdMotorVelocity {
-                        target: 0.,
-                        factor: 0.,
-                    }),
+                    velocity: None,
                     position: Some(RdMotorPosition { target: 0. }),
                     max_force: None,
                 },
                 RcPrismaticJointLimits(RdJointLimits {
-                    min: 0.1,
+                    min: 0.,
                     max: CUBE_SIZE * 2.,
                 }), // Limit the prismatic joint.
                 // Configuration for the motor controller for the prismatic joint...
-                RcJointMotorControlConfig::Velocity {
-                    normal_vel: MOTOR_CONTROL_NORMAL_VEL,
-                    normal_factor: MOTOR_CONTROL_NORMAL_FACTOR,
-                    boost_vel: MOTOR_CONTROL_BOOST_VEL,
-                    boost_factor: MOTOR_CONTROL_BOOST_FACTOR,
+                RcJointMotorControlConfig::Position {
+                    norm_ang_vel: PRISMATIC_MOTOR_CONTROL_NORM_ANG_VEL,
+                    boost_ang_vel: PRISMATIC_MOTOR_CONTROL_BOOST_ANG_VEL,
                 },
                 Transform::from_translation(Vec3::new(
                     CUBE_SIZE * 2. + HALF,
