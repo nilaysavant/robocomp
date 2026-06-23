@@ -5,9 +5,8 @@
 ## Features
 
 - **Standardized Blender-Bevy interop**: Provides standard set of `Components` which can be set in _editors_ like Blender via plugins like [Skein][skein-github]. On exporting to `gltf/glb` and import into Bevy, they get converted into proper physics bodies with joints!
-- **Easier Prefab Creation**: All you have to create are required gameplay and logic components which can be set on your gameplay objects for prefabs. No need to do re-invent the wheel of creating custom physics components every time!
-- **Physics Agnostic Simulation**: Allows _swapping_ the underlying physics engine with _almost_ **NO changes** to **code** or `gltf/glb/scene`!
-  - Supported Physics Engine: [`bevy_rapier`][bevy-rapier-github], [`avian`][avian-github]!
+- **Easier Prefab Creation**: All you have to create are required gameplay and logic components which can be set on your gameplay objects for prefabs. No need to do reinvent the wheel of creating custom physics components every time!
+- **Physics Agnostic Simulation**: Allows _swapping_ the underlying physics engine with _almost_ **NO changes** to **code** or `gltf/glb/scene`! Supports Backends for Physics Engines: [`bevy_rapier3d`][bevy-rapier-github] and [`avian3d`][avian-github]
 - **Easier Physics Body Queries and Control**: Robocomp provides all references to associated components of a robot at the top level and centralized. This simplifies querying and controlling the robotic contraptions in the simulation without traversing hierarchy.
 
 ## Crates
@@ -62,9 +61,9 @@ For a custom physics backend, depend on `robocomp` only and implement your own p
 
 ## Bevy Compatibility
 
-| Bevy | [bevy_rapier3d][bevy-rapier-github] | robocomp_rapier3d | [avian3d][avian-github] | robocomp_avian3d |
-| ---- | ------------------------------------- | ----------------- | ----------------------- | ---------------- |
-| **0.18** | 0.34 | 0.1 | 0.6.1 | 0.1 |
+| Bevy     | [bevy_rapier3d][bevy-rapier-github] | robocomp_rapier3d | [avian3d][avian-github] | robocomp_avian3d |
+| -------- | ----------------------------------- | ----------------- | ----------------------- | ---------------- |
+| **0.18** | 0.34                                | 0.1               | 0.6.1                   | 0.1              |
 
 ## Workspace
 

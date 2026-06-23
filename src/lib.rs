@@ -9,7 +9,7 @@ pub mod plugin;
 mod presets_plugin;
 /// Exposes the components for the robot composition/editing.
 ///
-/// Used via external tools like Blenvy etc.
+/// Used via external tools like Blender (via Skein) etc.
 pub mod rc;
 /// Describes the robot and its components.
 pub mod rd;
