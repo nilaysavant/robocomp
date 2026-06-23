@@ -120,16 +120,15 @@ fn multi_joint_robot(
                     axis: Vec3::Y,
                 },
                 RcRevoluteJointMotor {
-                    model: RdMotorModel::default(),
+                    model: RdMotorModel::AccelerationBased {
+                        stiffness: 0.,
+                        damping: 0.1,
+                    },
                     velocity: Some(RdMotorVelocity {
                         target: 0.,
                         factor: 0.,
                     }),
-                    position: Some(RdMotorPosition {
-                        target: 0.,
-                        stiffness: 0.,
-                        damping: 0.1,
-                    }),
+                    position: Some(RdMotorPosition { target: 0. }),
                     max_force: None,
                 },
                 // Configuration for the motor controller for the revolute joint...
@@ -166,16 +165,15 @@ fn multi_joint_robot(
                     axis: Vec3::X,
                 },
                 RcPrismaticJointMotor {
-                    model: RdMotorModel::AccelerationBased,
+                    model: RdMotorModel::AccelerationBased {
+                        stiffness: 0.,
+                        damping: 0.1,
+                    },
                     velocity: Some(RdMotorVelocity {
                         target: 0.,
                         factor: 0.,
                     }),
-                    position: Some(RdMotorPosition {
-                        target: 0.,
-                        stiffness: 0.,
-                        damping: 0.1,
-                    }),
+                    position: Some(RdMotorPosition { target: 0. }),
                     max_force: None,
                 },
                 RcPrismaticJointLimits(RdJointLimits {
@@ -220,16 +218,15 @@ fn multi_joint_robot(
                     axis: Vec3::Y,
                 },
                 RcRevoluteJointMotor {
-                    model: RdMotorModel::default(),
+                    model: RdMotorModel::AccelerationBased {
+                        stiffness: 0.,
+                        damping: 0.1,
+                    },
                     velocity: Some(RdMotorVelocity {
                         target: 0.,
                         factor: 0.,
                     }),
-                    position: Some(RdMotorPosition {
-                        target: 0.,
-                        stiffness: 0.,
-                        damping: 0.1,
-                    }),
+                    position: Some(RdMotorPosition { target: 0. }),
                     max_force: None,
                 },
                 // Configuration for the motor controller for the revolute joint...
@@ -270,16 +267,15 @@ fn multi_joint_robot(
                     axis: Vec3::X,
                 },
                 RcPrismaticJointMotor {
-                    model: RdMotorModel::AccelerationBased,
+                    model: RdMotorModel::AccelerationBased {
+                        stiffness: 0.,
+                        damping: 0.1,
+                    },
                     velocity: Some(RdMotorVelocity {
                         target: 0.,
                         factor: 0.,
                     }),
-                    position: Some(RdMotorPosition {
-                        target: 0.,
-                        stiffness: 0.,
-                        damping: 0.1,
-                    }),
+                    position: Some(RdMotorPosition { target: 0. }),
                     max_force: None,
                 },
                 RcPrismaticJointLimits(RdJointLimits {

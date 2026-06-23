@@ -383,7 +383,7 @@ pub fn process_joint_markers(
             .transform_point3(local_anchor_2_glob_translation);
 
         let default_motor = RdMotor {
-            model: robocomp::rd::RdMotorModel::AccelerationBased,
+            model: robocomp::rd::RdMotorModel::default(),
             velocity: None,
             position: None,
             max_force: None,

@@ -101,7 +101,10 @@ fn cube_revolute_cube_robot(
                     axis: Vec3::X,
                 },
                 RcPrismaticJointMotor {
-                    model: RdMotorModel::AccelerationBased,
+                    model: RdMotorModel::AccelerationBased {
+                        stiffness: 0.,
+                        damping: 0.1,
+                    },
                     velocity: Some(RdMotorVelocity {
                         target: 0.,
                         factor: 0.

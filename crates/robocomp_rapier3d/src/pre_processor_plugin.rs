@@ -424,16 +424,14 @@ pub fn process_joint_markers(
                     max_force,
                 }) = revolute_joint_motor
                 {
-                    joint = joint.motor_model(conversions::motor_model_from_rd(model.clone()));
+                    joint = joint.motor_model(conversions::rapier_motor_model_from_rd(&model));
                     if let Some(velocity) = velocity {
                         joint = joint.motor_velocity(velocity.target, velocity.factor);
                     }
                     if let Some(position) = position {
-                        joint = joint.motor_position(
-                            position.target,
-                            position.stiffness,
-                            position.damping,
-                        );
+                        let (stiffness, damping) =
+                            conversions::stiffness_damping_from_rd(&model);
+                        joint = joint.motor_position(position.target, stiffness, damping);
                     }
                     if let Some(max_force) = max_force {
                         joint = joint.motor_max_force(*max_force);
@@ -457,16 +455,14 @@ pub fn process_joint_markers(
                     max_force,
                 }) = prismatic_joint_motor
                 {
-                    joint = joint.motor_model(conversions::motor_model_from_rd(model.clone()));
+                    joint = joint.motor_model(conversions::rapier_motor_model_from_rd(&model));
                     if let Some(velocity) = velocity {
                         joint = joint.motor_velocity(velocity.target, velocity.factor);
                     }
                     if let Some(position) = position {
-                        joint = joint.motor_position(
-                            position.target,
-                            position.stiffness,
-                            position.damping,
-                        );
+                        let (stiffness, damping) =
+                            conversions::stiffness_damping_from_rd(&model);
+                        joint = joint.motor_position(position.target, stiffness, damping);
                     }
                     if let Some(max_force) = max_force {
                         joint = joint.motor_max_force(*max_force);
@@ -501,15 +497,15 @@ pub fn process_joint_markers(
                     joint = joint
                         .motor_model(
                             JointAxis::AngX,
-                            conversions::motor_model_from_rd(model_ang_x.clone()),
+                            conversions::rapier_motor_model_from_rd(&model_ang_x),
                         )
                         .motor_model(
                             JointAxis::AngY,
-                            conversions::motor_model_from_rd(model_ang_y.clone()),
+                            conversions::rapier_motor_model_from_rd(&model_ang_y),
                         )
                         .motor_model(
                             JointAxis::AngZ,
-                            conversions::motor_model_from_rd(model_ang_z.clone()),
+                            conversions::rapier_motor_model_from_rd(&model_ang_z),
                         );
                     if let Some(velocity_ang_x) = velocity_ang_x {
                         joint = joint.motor_velocity(
@@ -533,27 +529,33 @@ pub fn process_joint_markers(
                         );
                     }
                     if let Some(position_ang_x) = position_ang_x {
+                        let (stiffness, damping) =
+                            conversions::stiffness_damping_from_rd(&model_ang_x);
                         joint = joint.motor_position(
                             JointAxis::AngX,
                             position_ang_x.target,
-                            position_ang_x.stiffness,
-                            position_ang_x.damping,
+                            stiffness,
+                            damping,
                         );
                     }
                     if let Some(position_ang_y) = position_ang_y {
+                        let (stiffness, damping) =
+                            conversions::stiffness_damping_from_rd(&model_ang_y);
                         joint = joint.motor_position(
                             JointAxis::AngY,
                             position_ang_y.target,
-                            position_ang_y.stiffness,
-                            position_ang_y.damping,
+                            stiffness,
+                            damping,
                         );
                     }
                     if let Some(position_ang_z) = position_ang_z {
+                        let (stiffness, damping) =
+                            conversions::stiffness_damping_from_rd(&model_ang_z);
                         joint = joint.motor_position(
                             JointAxis::AngZ,
                             position_ang_z.target,
-                            position_ang_z.stiffness,
-                            position_ang_z.damping,
+                            stiffness,
+                            damping,
                         );
                     }
                     if let Some(max_force_ang_x) = max_force_ang_x {

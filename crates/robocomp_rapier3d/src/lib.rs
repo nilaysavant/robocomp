@@ -10,7 +10,8 @@ pub use controller_plugin::{ActiveJointControlTracker, RobocompRapierControllerP
 pub use pre_processor_plugin::PreProcessorPluginSystemSet;
 pub use conversions::{
     fixed_joint_builder_from_rd, motor_model_from_rd, prismatic_joint_builder_from_rd,
-    revolute_joint_builder_from_rd, rigid_body_from_rc, spherical_joint_builder_from_rd,
+    rapier_motor_model_from_rd, revolute_joint_builder_from_rd, rigid_body_from_rc,
+    spherical_joint_builder_from_rd, stiffness_damping_from_rd,
 };
 pub use rapier_plugin::RobocompRapierPlugin;
 

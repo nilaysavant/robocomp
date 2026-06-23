@@ -211,11 +211,29 @@ pub struct RdMotor {
     pub max_force: Option<RdScaler>,
 }
 
-#[derive(Debug, Clone, Reflect, Default)]
+#[derive(Debug, Clone, Reflect)]
 pub enum RdMotorModel {
-    AccelerationBased,
-    #[default]
-    ForceBased,
+    SpringDamper {
+        frequency: f32,
+        damping_ratio: f32,
+    },
+    ForceBased {
+        stiffness: f32,
+        damping: f32,
+    },
+    AccelerationBased {
+        stiffness: f32,
+        damping: f32,
+    },
+}
+
+impl Default for RdMotorModel {
+    fn default() -> Self {
+        Self::AccelerationBased {
+            stiffness: 0.0,
+            damping: 1.0,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Reflect)]
@@ -227,8 +245,6 @@ pub struct RdMotorVelocity {
 #[derive(Debug, Clone, Reflect)]
 pub struct RdMotorPosition {
     pub target: RdScaler,
-    pub stiffness: RdScaler,
-    pub damping: RdScaler,
 }
 
 #[derive(Debug, Clone, Reflect)]

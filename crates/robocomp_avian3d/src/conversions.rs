@@ -17,22 +17,26 @@ pub fn rigid_body_from_rc(rigid_body: RcRigidBody) -> RigidBody {
     }
 }
 
-pub fn motor_model_from_rd(value: RdMotorModel, stiffness: f32, damping: f32) -> MotorModel {
+pub fn motor_model_from_rd(value: RdMotorModel) -> MotorModel {
     match value {
-        RdMotorModel::AccelerationBased => MotorModel::AccelerationBased { stiffness, damping },
-        RdMotorModel::ForceBased => MotorModel::ForceBased { stiffness, damping },
+        RdMotorModel::SpringDamper {
+            frequency,
+            damping_ratio,
+        } => MotorModel::SpringDamper {
+            frequency,
+            damping_ratio,
+        },
+        RdMotorModel::ForceBased { stiffness, damping } => {
+            MotorModel::ForceBased { stiffness, damping }
+        }
+        RdMotorModel::AccelerationBased { stiffness, damping } => {
+            MotorModel::AccelerationBased { stiffness, damping }
+        }
     }
 }
 
 pub fn angular_motor_from_rd(motor: &RdMotor) -> AngularMotor {
-    let (stiffness, damping) = motor
-        .position
-        .as_ref()
-        .map(|p| (p.stiffness, p.damping))
-        .unwrap_or((0.0, 1.0));
-
-    let mut angular_motor =
-        AngularMotor::new(motor_model_from_rd(motor.model.clone(), stiffness, damping));
+    let mut angular_motor = AngularMotor::new(motor_model_from_rd(motor.model.clone()));
 
     if let Some(velocity) = &motor.velocity {
         angular_motor = angular_motor.with_target_velocity(velocity.target * velocity.factor);
@@ -48,14 +52,7 @@ pub fn angular_motor_from_rd(motor: &RdMotor) -> AngularMotor {
 }
 
 pub fn linear_motor_from_rd(motor: &RdMotor) -> LinearMotor {
-    let (stiffness, damping) = motor
-        .position
-        .as_ref()
-        .map(|p| (p.stiffness, p.damping))
-        .unwrap_or((0.0, 1.0));
-
-    let mut linear_motor =
-        LinearMotor::new(motor_model_from_rd(motor.model.clone(), stiffness, damping));
+    let mut linear_motor = LinearMotor::new(motor_model_from_rd(motor.model.clone()));
 
     if let Some(velocity) = &motor.velocity {
         linear_motor = linear_motor.with_target_velocity(velocity.target * velocity.factor);
