@@ -29,7 +29,7 @@ authors.workspace = true
 edition.workspace = true
 
 [dependencies]
-bevy = { workspace = true, features = ["bevy_render"] }
+bevy = { workspace = true, features = ["bevy_render", "bevy_log"] }
 bevy_skein = { workspace = true }
 petgraph = { workspace = true }
 
