@@ -123,13 +123,12 @@
 							"max_force":null,
 							"model":{
 								"AccelerationBased":{
-									"damping":0.10000000149011612,
+									"damping":1.0,
 									"stiffness":0.0
 								}
 							},
 							"position":null,
 							"velocity":{
-								"factor":1.0,
 								"target":10.0
 							}
 						}
