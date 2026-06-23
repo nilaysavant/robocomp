@@ -1,15 +1,13 @@
-//! A simple rigid bodies example with a fixed table and a dynamic cube that falls onto it.
+//! A simple rigid bodies example with a fixed table and cube(s) that fall onto it.
 
+use avian3d::prelude::*;
 use bevy::{
     color::palettes::tailwind::{BLUE_400, SLATE_500},
     prelude::*,
 };
-use avian3d::prelude::*;
 use robocomp_avian3d::{
     RobocompAvianPlugin,
-    rc::{
-        RcCollider, RcDisableSleep, RcLink, RcLinkRoot, RcRigidBody, RcRobotRoot, RcSceneRoot,
-    },
+    rc::{RcCollider, RcDisableSleep, RcLink, RcLinkRoot, RcRigidBody, RcRobotRoot, RcSceneRoot},
     rd::RdName,
 };
 
@@ -19,7 +17,7 @@ use crate::scene_setup::SceneSetupPlugin;
 mod scene_setup;
 
 /// Wide, flat cuboid used as a fixed table surface.
-const TABLE_SIZE: Vec3 = Vec3::new(3.0, 0.2, 2.0);
+const TABLE_SIZE: Vec3 = Vec3::new(5.0, 0.2, 5.0);
 const CUBE_SIZE: f32 = 1.0;
 /// Gap between the table top and the falling cube's center, before half-extent offset.
 const FALL_HEIGHT: f32 = 2.5;
@@ -40,7 +38,9 @@ fn main() {
     app.add_systems(Startup, setup_scene);
 
     // Rest...
-    app.add_systems(Startup, || info!("Robocomp simple rigid bodies example running!"));
+    app.add_systems(Startup, || {
+        info!("Robocomp simple rigid bodies example running!")
+    });
 
     // Run app...
     app.run();
@@ -90,12 +90,7 @@ fn rigid_bodies_robot(
         Visibility::default(),
         children![
             (
-                link(
-                    "Table",
-                    RcRigidBody::Fixed,
-                    table_mesh_hdl,
-                    table_mat_hdl,
-                ),
+                link("Table", RcRigidBody::Fixed, table_mesh_hdl, table_mat_hdl,),
                 RcLinkRoot, // Mark the first link as the root link of the robot.
                 Transform::from_translation(Vec3::new(0., TABLE_SIZE.y / 2., 0.)),
             ),
@@ -103,16 +98,31 @@ fn rigid_bodies_robot(
                 link(
                     "Falling Cube",
                     RcRigidBody::Dynamic,
-                    cube_mesh_hdl,
-                    cube_mat_hdl,
+                    cube_mesh_hdl.clone(),
+                    cube_mat_hdl.clone(),
                 ),
-                Transform::from_translation(Vec3::new(0., table_top + FALL_HEIGHT + cube_half, 0.)),
-                RcDisableSleep, // Keep the dynamic link awake for stable simulation.
+                Transform::from_translation(Vec3::new(
+                    -1.,
+                    table_top + FALL_HEIGHT + cube_half,
+                    0.
+                )),
+                RcDisableSleep, // Keep the dynamic link awake.
+            ),
+            (
+                link_multi_colliders(
+                    "Falling Cube Multi Colliders",
+                    RcRigidBody::Dynamic,
+                    cube_mesh_hdl.clone(),
+                    cube_mat_hdl.clone(),
+                ),
+                Transform::from_translation(Vec3::new(1., table_top + FALL_HEIGHT + cube_half, 0.)),
+                RcDisableSleep, // Keep the dynamic link awake.
             ),
         ],
     )
 }
 
+/// Link with a single child mesh that has a collider.
 fn link(
     name: &'static str,
     rigid_body: RcRigidBody,
@@ -137,5 +147,56 @@ fn link(
             Mesh3d(mesh_hdl),
             MeshMaterial3d(material_hdl),
         )],
+    )
+}
+
+/// Link with multiple child meshes that have colliders.
+fn link_multi_colliders(
+    name: &'static str,
+    rigid_body: RcRigidBody,
+    mesh_hdl: Handle<Mesh>,
+    material_hdl: Handle<StandardMaterial>,
+) -> impl Bundle {
+    (
+        Name::new(format!("{} Link", name)),
+        RcLink {
+            name: RdName::new(name),
+            rigid_body,
+        },
+        Visibility::default(),
+        children![
+            (
+                Name::new(format!("{} Mesh Node 1", name)),
+                Transform::from_xyz(0., 0.0, -0.6),
+                Visibility::default(),
+                RcCollider {
+                    keep_mesh: true,
+                    ..Default::default()
+                },
+                children![(
+                    Name::new(format!("{} Mesh Node 1 Mesh", name)),
+                    Transform::default(),
+                    Visibility::default(),
+                    Mesh3d(mesh_hdl.clone()),
+                    MeshMaterial3d(material_hdl.clone()),
+                )],
+            ),
+            (
+                Name::new(format!("{} Mesh Node 2", name)),
+                Transform::from_xyz(0., 0.0, 0.6),
+                Visibility::default(),
+                RcCollider {
+                    keep_mesh: true,
+                    ..Default::default()
+                },
+                children![(
+                    Name::new(format!("{} Mesh Node 2 Mesh", name)),
+                    Transform::default(),
+                    Visibility::default(),
+                    Mesh3d(mesh_hdl.clone()),
+                    MeshMaterial3d(material_hdl.clone()),
+                )],
+            )
+        ],
     )
 }
