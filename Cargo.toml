@@ -27,6 +27,7 @@ name = "robocomp"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
+description = "Bevy Plugin for Robot/Rigid-Body Composition using URDF inspired physics agnostic components. For use with editors like Blender (via Skein) etc."
 
 [dependencies]
 bevy = { workspace = true, features = ["bevy_render", "bevy_log"] }

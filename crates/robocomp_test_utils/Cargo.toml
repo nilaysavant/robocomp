@@ -3,6 +3,7 @@ name = "robocomp_test_utils"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
+description = "Shared test harness, fixtures, and scenario runners for robocomp physics backend integration tests"
 publish = false
 
 [dependencies]
