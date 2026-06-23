@@ -35,13 +35,16 @@ const JOINTS: [&str; 4] = [
     "Prismatic Joint 2",
 ];
 
-/// Motor control tuned for unit-sized cubes and the multi-link chain's added inertia.
-const MOTOR_CONTROL_NORMAL_VEL: f32 = 4.;
-const MOTOR_CONTROL_NORMAL_FACTOR: f32 = 8.;
-const MOTOR_CONTROL_BOOST_VEL: f32 = 8.;
-const MOTOR_CONTROL_BOOST_FACTOR: f32 = 16.;
-const PRISMATIC_MOTOR_CONTROL_NORM_ANG_VEL: f32 = 4.;
-const PRISMATIC_MOTOR_CONTROL_BOOST_ANG_VEL: f32 = 8.;
+/// Revolute: `AccelerationBased` velocity motor — Avian wraps position error to [-π, π],
+/// so continuous spin needs velocity control, not `SpringDamper` position control.
+const REVOLUTE_MOTOR_DAMPING: f32 = 3.5;
+const REVOLUTE_MOTOR_NORMAL_VEL: f32 = 10.;
+const REVOLUTE_MOTOR_BOOST_VEL: f32 = 16.;
+/// Prismatic: `SpringDamper` position control (see the standalone prismatic example).
+const PRISMATIC_MOTOR_FREQUENCY: f32 = 9.;
+const PRISMATIC_MOTOR_DAMPING_RATIO: f32 = 3.5;
+const PRISMATIC_MOTOR_NORM_ANG_VEL: f32 = 8.;
+const PRISMATIC_MOTOR_BOOST_ANG_VEL: f32 = 16.;
 
 fn main() {
     let mut app = App::new();
@@ -55,7 +58,6 @@ fn main() {
         RobocompAvianPlugin,
         RobocompAvianControllerPlugin,
     ));
-
     // Systems...
     app.add_systems(Startup, setup_scene);
 
@@ -124,21 +126,21 @@ fn multi_joint_robot(
                 RcRevoluteJointMotor {
                     model: RdMotorModel::AccelerationBased {
                         stiffness: 0.,
-                        damping: 0.1,
+                        damping: REVOLUTE_MOTOR_DAMPING,
                     },
                     velocity: Some(RdMotorVelocity {
                         target: 0.,
                         factor: 0.,
                     }),
-                    position: Some(RdMotorPosition { target: 0. }),
+                    position: None,
                     max_force: None,
                 },
                 // Configuration for the motor controller for the revolute joint...
                 RcJointMotorControlConfig::Velocity {
-                    normal_vel: MOTOR_CONTROL_NORMAL_VEL,
-                    normal_factor: MOTOR_CONTROL_NORMAL_FACTOR,
-                    boost_vel: MOTOR_CONTROL_BOOST_VEL,
-                    boost_factor: MOTOR_CONTROL_BOOST_FACTOR,
+                    normal_vel: REVOLUTE_MOTOR_NORMAL_VEL,
+                    normal_factor: 0.,
+                    boost_vel: REVOLUTE_MOTOR_BOOST_VEL,
+                    boost_factor: 0.,
                 },
                 Transform::from_translation(Vec3::new(0., CUBE_SIZE, 0.)),
             ),
@@ -167,11 +169,9 @@ fn multi_joint_robot(
                     axis: Vec3::X,
                 },
                 RcPrismaticJointMotor {
-                    // Roughly equivalent to the Rapier example's AccelerationBased
-                    // { stiffness: 5000., damping: 650. }.
                     model: RdMotorModel::SpringDamper {
-                        frequency: 11.25,
-                        damping_ratio: 4.6,
+                        frequency: PRISMATIC_MOTOR_FREQUENCY,
+                        damping_ratio: PRISMATIC_MOTOR_DAMPING_RATIO,
                     },
                     velocity: None,
                     position: Some(RdMotorPosition { target: 0. }),
@@ -183,8 +183,8 @@ fn multi_joint_robot(
                 }), // Limit the prismatic joint.
                 // Configuration for the motor controller for the prismatic joint...
                 RcJointMotorControlConfig::Position {
-                    norm_ang_vel: PRISMATIC_MOTOR_CONTROL_NORM_ANG_VEL,
-                    boost_ang_vel: PRISMATIC_MOTOR_CONTROL_BOOST_ANG_VEL,
+                    norm_ang_vel: PRISMATIC_MOTOR_NORM_ANG_VEL,
+                    boost_ang_vel: PRISMATIC_MOTOR_BOOST_ANG_VEL,
                 },
                 Transform::from_translation(Vec3::new(
                     HALF,
@@ -219,21 +219,21 @@ fn multi_joint_robot(
                 RcRevoluteJointMotor {
                     model: RdMotorModel::AccelerationBased {
                         stiffness: 0.,
-                        damping: 0.1,
+                        damping: REVOLUTE_MOTOR_DAMPING,
                     },
                     velocity: Some(RdMotorVelocity {
                         target: 0.,
                         factor: 0.,
                     }),
-                    position: Some(RdMotorPosition { target: 0. }),
+                    position: None,
                     max_force: None,
                 },
                 // Configuration for the motor controller for the revolute joint...
                 RcJointMotorControlConfig::Velocity {
-                    normal_vel: MOTOR_CONTROL_NORMAL_VEL,
-                    normal_factor: MOTOR_CONTROL_NORMAL_FACTOR,
-                    boost_vel: MOTOR_CONTROL_BOOST_VEL,
-                    boost_factor: MOTOR_CONTROL_BOOST_FACTOR,
+                    normal_vel: REVOLUTE_MOTOR_NORMAL_VEL,
+                    normal_factor: 0.,
+                    boost_vel: REVOLUTE_MOTOR_BOOST_VEL,
+                    boost_factor: 0.,
                 },
                 Transform::from_translation(Vec3::new(
                     CUBE_SIZE + HALF,
@@ -266,11 +266,9 @@ fn multi_joint_robot(
                     axis: Vec3::X,
                 },
                 RcPrismaticJointMotor {
-                    // Roughly equivalent to the Rapier example's AccelerationBased
-                    // { stiffness: 5000., damping: 650. }.
                     model: RdMotorModel::SpringDamper {
-                        frequency: 11.25,
-                        damping_ratio: 4.6,
+                        frequency: PRISMATIC_MOTOR_FREQUENCY,
+                        damping_ratio: PRISMATIC_MOTOR_DAMPING_RATIO,
                     },
                     velocity: None,
                     position: Some(RdMotorPosition { target: 0. }),
@@ -282,8 +280,8 @@ fn multi_joint_robot(
                 }), // Limit the prismatic joint.
                 // Configuration for the motor controller for the prismatic joint...
                 RcJointMotorControlConfig::Position {
-                    norm_ang_vel: PRISMATIC_MOTOR_CONTROL_NORM_ANG_VEL,
-                    boost_ang_vel: PRISMATIC_MOTOR_CONTROL_BOOST_ANG_VEL,
+                    norm_ang_vel: PRISMATIC_MOTOR_NORM_ANG_VEL,
+                    boost_ang_vel: PRISMATIC_MOTOR_BOOST_ANG_VEL,
                 },
                 Transform::from_translation(Vec3::new(
                     CUBE_SIZE * 2. + HALF,
