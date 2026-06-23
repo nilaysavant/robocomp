@@ -2,12 +2,9 @@
 //! Allows controlling the prismatic joint via the W/S + ShiftLeft Keys.
 
 use bevy::{color::palettes::tailwind::BLUE_400, prelude::*};
-use bevy_rapier3d::{
-    plugin::{NoUserData, RapierPhysicsPlugin},
-    render::RapierDebugRenderPlugin,
-};
-use robocomp_rapier3d::{
-    RobocompRapierControllerPlugin, RobocompRapierPlugin,
+use avian3d::prelude::*;
+use robocomp_avian3d::{
+    RobocompAvianControllerPlugin, RobocompAvianPlugin,
     rc::{
         RcCollider, RcDisableSleep, RcJoint, RcJointKind, RcJointLocalAnchor1, RcJointLocalAnchor2,
         RcJointMotorControlConfig, RcLink, RcLinkRoot, RcPrismaticJointLimits,
@@ -30,12 +27,12 @@ fn main() {
     // Add Bevy default and basic scene setup plugins...
     app.add_plugins((DefaultPlugins, SceneSetupPlugin));
 
-    // Add rapier physics and robocomp plugins...
+    // Add avian physics and robocomp plugins...
     app.add_plugins((
-        RapierPhysicsPlugin::<NoUserData>::default(),
-        RapierDebugRenderPlugin::default(),
-        RobocompRapierPlugin,
-        RobocompRapierControllerPlugin,
+        PhysicsPlugins::default(),
+        PhysicsDebugPlugin,
+        RobocompAvianPlugin,
+        RobocompAvianControllerPlugin,
     ));
 
     // Systems...
@@ -43,7 +40,7 @@ fn main() {
 
     // Rest...
     app.add_systems(Startup, || {
-        info!("Robocomp prismatic controller example running!")
+        info!("Robocomp prismatic control example running!")
     });
 
     // Run app...
@@ -58,7 +55,7 @@ fn setup_scene(
     // Scene...
     commands
         .spawn((
-            Name::new("Prismatic Controller Example Scene"),
+            Name::new("Prismatic Control Example Scene"),
             Transform::default(),
             Visibility::default(),
             RcSceneRoot, // Scene Root for Robocomp
@@ -104,16 +101,19 @@ fn cube_revolute_cube_robot(
                     axis: Vec3::X,
                 },
                 RcPrismaticJointMotor {
-                    model: RdMotorModel::AccelerationBased {
-                        stiffness: 5000.,
-                        damping: 650.,
+                    // Avian position motors are stable with SpringDamper (see Avian's joint_motors_3d
+                    // example). Roughly equivalent to the Rapier example's AccelerationBased
+                    // { stiffness: 5000., damping: 650. }.
+                    model: RdMotorModel::SpringDamper {
+                        frequency: 11.25,
+                        damping_ratio: 4.6,
                     },
                     velocity: None,
                     position: Some(RdMotorPosition { target: 0. }),
                     max_force: None,
                 },
                 RcPrismaticJointLimits(RdJointLimits { min: 0., max: 2.5 }), // Limit the prismatic joint.
-                // Configuration for the motor controller for the prismatic joint...
+                // Configuration for the motor control for the prismatic joint...
                 RcJointMotorControlConfig::Position {
                     norm_ang_vel: 4.,
                     boost_ang_vel: 8.,
