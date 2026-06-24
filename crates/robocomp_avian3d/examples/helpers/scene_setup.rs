@@ -52,7 +52,7 @@ fn setup_scene(
     // Camera...
     commands.spawn((
         Camera3d::default(),
-        Transform::from_translation(Vec3::ONE * 5.).looking_at(Vec3::ZERO, Vec3::Y),
+        Transform::from_translation(Vec3::ONE * 8.).looking_at(Vec3::ZERO, Vec3::Y),
     ));
 
     // Light...
