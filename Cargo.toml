@@ -15,7 +15,7 @@ edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/nilaysavant/robocomp"
 homepage = "https://github.com/nilaysavant/robocomp"
-keywords = ["bevy", "physics", "robotics", "urdf", "gltf", "blender"]
+keywords = ["bevy", "physics", "robotics", "urdf", "gltf"]
 categories = ["game-development", "simulation"]
 
 [workspace.dependencies]
