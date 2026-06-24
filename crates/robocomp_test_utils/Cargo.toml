@@ -1,9 +1,14 @@
 [package]
 name = "robocomp_test_utils"
-version.workspace = true
-authors.workspace = true
-edition.workspace = true
 description = "Shared test harness, fixtures, and scenario runners for robocomp physics backend integration tests"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
 publish = false
 
 [dependencies]
