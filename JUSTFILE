@@ -17,7 +17,11 @@ docs-all:
     cargo doc --workspace --no-deps --all-features
 
 # Run all pre-publish checks
-pre-publish-checks: test-all build-all docs-all
+pre-release-checks: test-all build-all docs-all
+
+# Release all workspace crates
+release-all:
+    cargo release --workspace --all-features
 
 # Clean all build artifacts
 clean:
