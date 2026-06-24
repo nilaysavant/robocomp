@@ -5,7 +5,6 @@
 
 use avian3d::prelude::*;
 use bevy::{color::palettes::tailwind::BLUE_400, prelude::*};
-use robocomp::rd::RdMotorPosition;
 use robocomp_avian3d::{
     RobocompAvianControllerPlugin, RobocompAvianPlugin,
     rc::{
@@ -13,7 +12,7 @@ use robocomp_avian3d::{
         RcJointMotorControlConfig, RcLink, RcLinkRoot, RcPrismaticJointLimits,
         RcPrismaticJointMotor, RcRevoluteJointMotor, RcRigidBody, RcRobotRoot, RcSceneRoot,
     },
-    rd::{RdJointLimits, RdMotorModel, RdMotorVelocity, RdName},
+    rd::{RdJointLimits, RdMotorModel, RdMotorPosition, RdMotorVelocity, RdName},
 };
 
 use crate::scene_setup::SceneSetupPlugin;
