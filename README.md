@@ -1,5 +1,9 @@
 # robocomp
 
+[![robocomp crates.io](https://img.shields.io/crates/v/robocomp?label=robocomp)](https://crates.io/crates/robocomp)
+[![robocomp_rapier3d crates.io](https://img.shields.io/crates/v/robocomp_rapier3d?label=robocomp_rapier3d)](https://crates.io/crates/robocomp_rapier3d)
+[![robocomp_avian3d crates.io](https://img.shields.io/crates/v/robocomp_avian3d?label=robocomp_avian3d)](https://crates.io/crates/robocomp_avian3d)
+
 [Bevy][bevy-web] Plugin for **Robot/Rigid-Body Composition** using [URDF][urdf-wiki] inspired physics agnostic components. For use with editors like [Blender][blender-web] (via [Skein][skein-github]) etc.
 
 ## Features
