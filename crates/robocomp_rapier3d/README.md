@@ -17,7 +17,7 @@ The [Rapier][bevy-rapier-github] physics plugin must be added **alongside** the 
 
 ```toml
 [dependencies]
-robocomp_rapier3d = "0.1"
+robocomp_rapier3d = "0.2-dev"
 ```
 
 ```rust,ignore
@@ -80,7 +80,8 @@ Robocomp is **physics-agnostic** — switching backends requires minimal code an
 
 | Bevy | [bevy_rapier3d][bevy-rapier-github] | robocomp_rapier3d |
 | ---- | ------------------------------------- | ----------------- |
-| **0.19** | 0.36 | 0.1 |
+| **0.19** | 0.36 | 0.2-dev |
+| **0.18** | 0.34 | 0.1 |
 
 [bevy-web]: https://bevy.org/
 [bevy-rapier-github]: https://github.com/dimforge/bevy_rapier
