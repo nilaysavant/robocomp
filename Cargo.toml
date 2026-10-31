@@ -9,7 +9,7 @@ members = [
 default-members = ["."]
 
 [workspace.package]
-version = "0.2.0-dev"
+version = "0.2.0"
 authors = ["Nilay Savant"]
 edition = "2024"
 license = "MIT OR Apache-2.0"
@@ -25,7 +25,7 @@ avian3d = "0.7"
 bevy_skein = "0.6"
 bevy-inspector-egui = "0.37"
 petgraph = "0.8"
-robocomp = { version = "0.2.0-dev", path = "." }
+robocomp = { version = "0.2.0", path = "." }
 
 [package]
 name = "robocomp"
