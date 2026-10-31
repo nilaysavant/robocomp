@@ -67,7 +67,7 @@ For a custom physics backend, depend on `robocomp` only and implement your own p
 
 | Bevy     | [bevy_rapier3d][bevy-rapier-github] | robocomp_rapier3d | [avian3d][avian-github] | robocomp_avian3d |
 | -------- | ----------------------------------- | ----------------- | ----------------------- | ---------------- |
-| **0.18** | 0.34                                | 0.1               | 0.6.1                   | 0.1              |
+| **0.19** | 0.36                                | 0.1               | 0.7                     | 0.1              |
 
 ## Workspace
 

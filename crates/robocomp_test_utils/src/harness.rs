@@ -1,4 +1,4 @@
-use bevy::{mesh::MeshPlugin, prelude::*, scene::ScenePlugin};
+use bevy::{mesh::MeshPlugin, prelude::*, world_serialization::WorldSerializationPlugin};
 use robocomp::rc::{RcSceneRoot, RcSceneRootIsProcessed, RcSceneRootReady};
 
 /// Provides a minimal Bevy setup for headless tests.
@@ -11,7 +11,7 @@ impl Plugin for BevyTestingDefaultsPlugin {
             TransformPlugin,
             AssetPlugin::default(),
             MeshPlugin,
-            ScenePlugin,
+            WorldSerializationPlugin,
         ));
         app.insert_resource(ButtonInput::<KeyCode>::default());
         app.world_mut().spawn(Window::default());
@@ -56,7 +56,7 @@ pub fn wait_for_scene_ready(app: &mut App, max_update_iterations: i32) -> Result
 
 /// Serialize the world's scene to a string for debugging and assertions in tests.
 pub fn serialize_scene_world(world: &mut World) -> Result<String> {
-    let scene = DynamicScene::from_world(world);
+    let scene = DynamicWorld::from_world(world);
     let type_registry = world.resource::<AppTypeRegistry>();
     let type_registry = type_registry.read();
     let serialized_scene = scene.serialize(&type_registry)?;

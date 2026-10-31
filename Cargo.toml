@@ -19,11 +19,11 @@ keywords = ["bevy", "physics", "robotics", "urdf", "gltf"]
 categories = ["game-development", "simulation"]
 
 [workspace.dependencies]
-bevy = { version = "0.18", default-features = false }
-bevy_rapier3d = "0.34"
-avian3d = "0.6.1"
-bevy_skein = "0.5"
-bevy-inspector-egui = "0.36"
+bevy = { version = "0.19", default-features = false }
+bevy_rapier3d = "0.36"
+avian3d = "0.7"
+bevy_skein = "0.6"
+bevy-inspector-egui = "0.37"
 petgraph = "0.8"
 robocomp = { version = "0.1.0", path = "." }
 

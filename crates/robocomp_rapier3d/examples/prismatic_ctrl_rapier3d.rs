@@ -55,21 +55,22 @@ fn setup_scene(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // Scene...
-    commands
-        .spawn((
-            Name::new("Prismatic Control Example Scene"),
-            Transform::default(),
-            Visibility::default(),
-            RcSceneRoot, // Scene Root for Robocomp
-        ))
-        .with_child(cube_revolute_cube_robot(&mut meshes, &mut materials));
+    let robot = cube_revolute_cube_robot(&mut meshes, &mut materials);
+    commands.spawn_scene(bsn! {
+        Name("Prismatic Control Example Scene")
+        Transform
+        Visibility
+        RcSceneRoot
+        Children [
+            ({robot}),
+        ]
+    });
 }
 
 fn cube_revolute_cube_robot(
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
-) -> impl Bundle {
+) -> impl Scene {
     let cube_mesh_hdl = meshes.add(Mesh::from(Cuboid::from_size(Vec3::splat(1.0))));
     let cube_mat_hdl = materials.add(StandardMaterial {
         base_color: Color::from(BLUE_400),
@@ -77,61 +78,76 @@ fn cube_revolute_cube_robot(
         ..Default::default()
     });
 
-    (
-        Name::new("Cube Prismatic Cube Robot"),
-        RcRobotRoot,
-        Transform::default(),
-        Visibility::default(),
-        children![
+    let base_link = link(
+        LINKS[0],
+        RcRigidBody::Fixed,
+        cube_mesh_hdl.clone(),
+        cube_mat_hdl.clone(),
+    );
+    let moving_link = link(LINKS[1], RcRigidBody::Dynamic, cube_mesh_hdl, cube_mat_hdl);
+    let joint_scene = joint(JOINT, Vec3::ZERO, Vec3::ZERO);
+    let joint_kind = scene_component(RcJointKind::Prismatic {
+        parent: RdName::new(LINKS[0]),
+        child: RdName::new(LINKS[1]),
+        axis: Vec3::X,
+    });
+    let joint_limits = scene_component(RcPrismaticJointLimits(RdJointLimits { min: 0., max: 2.5 }));
+    let motor_control = scene_component(RcJointMotorControlConfig::Position {
+        norm_ang_vel: 4.,
+        boost_ang_vel: 8.,
+    });
+    let base_translation = Vec3::new(0., 0.5, 0.);
+    let joint_translation = Vec3::new(1., 0.5, 0.);
+    let moving_translation = Vec3::new(2., 0.5, 0.);
+
+    bsn! {
+        Name("Cube Prismatic Cube Robot")
+        RcRobotRoot
+        Transform
+        Visibility
+        Children [
             (
-                link(
-                    LINKS[0],
-                    RcRigidBody::Fixed,
-                    cube_mesh_hdl.clone(),
-                    cube_mat_hdl.clone()
-                ),
-                RcLinkRoot, // Mark the first link as the root link for the robot.
-                Transform::from_translation(Vec3::new(0., 0.5, 0.)),
+                {base_link}
+                RcLinkRoot
+                Transform { translation: {base_translation} }
             ),
             (
                 // Create a prismatic joint between LINKS[0] and LINKS[1].
                 // Local anchors can usually be left to zero ie. on the same position as the joint entity,
                 // but can be adjusted (in local space of the respective link) for different joint configurations.
-                joint(JOINT, Vec3::ZERO, Vec3::ZERO),
-                RcJointKind::Prismatic {
-                    parent: RdName::new(LINKS[0]),
-                    child: RdName::new(LINKS[1]),
-                    axis: Vec3::X,
-                },
+                {joint_scene}
+                {joint_kind}
                 RcPrismaticJointMotor {
-                    model: RdMotorModel::AccelerationBased {
+                    model: {RdMotorModel::AccelerationBased {
                         stiffness: 5000.,
                         damping: 650.,
-                    },
+                    }},
                     velocity: None,
-                    position: Some(RdMotorPosition { target: 0. }),
+                    position: {Some(RdMotorPosition { target: 0. })},
                     max_force: None,
-                },
-                RcPrismaticJointLimits(RdJointLimits { min: 0., max: 2.5 }), // Limit the prismatic joint.
+                }
+                {joint_limits}
                 // Configuration for the motor control for the prismatic joint...
-                RcJointMotorControlConfig::Position {
-                    norm_ang_vel: 4.,
-                    boost_ang_vel: 8.,
-                },
-                Transform::from_translation(Vec3::new(1., 0.5, 0.)),
+                {motor_control}
+                Transform { translation: {joint_translation} }
             ),
             (
-                link(
-                    LINKS[1],
-                    RcRigidBody::Dynamic,
-                    cube_mesh_hdl.clone(),
-                    cube_mat_hdl.clone()
-                ),
-                Transform::from_translation(Vec3::new(2., 0.5, 0.)),
-                RcDisableSleep,
-            )
-        ],
-    )
+                {moving_link}
+                Transform { translation: {moving_translation} }
+                RcDisableSleep
+            ),
+        ]
+    }
+}
+
+/// Insert a component value that `bsn!` cannot construct directly.
+fn scene_component<T>(value: T) -> impl Scene
+where
+    T: Component + Clone + Send + Sync + 'static,
+{
+    bsn! {
+        template(move |_ctx| Ok(value.clone()))
+    }
 }
 
 fn link(
@@ -139,49 +155,47 @@ fn link(
     rigid_body: RcRigidBody,
     mesh_hdl: Handle<Mesh>,
     material_hdl: Handle<StandardMaterial>,
-) -> impl Bundle {
-    (
-        Name::new(format!("{} Link", name)),
+) -> impl Scene {
+    bsn! {
+        Name({format!("{} Link", name)})
         RcLink {
-            name: RdName::new(name),
-            rigid_body,
-        },
-        Visibility::default(),
-        RcCollider {
-            keep_mesh: true,
-            ..Default::default()
-        },
-        children![(
-            Name::new(format!("{} Mesh", name)),
-            Transform::default(),
-            Visibility::default(),
-            Mesh3d(mesh_hdl),
-            MeshMaterial3d(material_hdl),
-        )],
-    )
+            name: {RdName::new(name)},
+            rigid_body: {rigid_body},
+        }
+        Visibility
+        RcCollider { keep_mesh: true }
+        Children [
+            (
+                Name({format!("{} Mesh", name)})
+                Transform
+                Visibility
+                Mesh3d({mesh_hdl})
+                MeshMaterial3d<StandardMaterial>({material_hdl})
+            ),
+        ]
+    }
 }
 
-fn joint(name: &'static str, local_anchor1: Vec3, local_anchor2: Vec3) -> impl Bundle {
-    (
-        Name::new(format!("{} Joint", name)),
-        Visibility::default(),
+fn joint(name: &'static str, local_anchor1: Vec3, local_anchor2: Vec3) -> impl Scene {
+    bsn! {
+        Name({format!("{} Joint", name)})
+        Visibility
         RcJoint {
-            name: RdName::new(name),
-            ..Default::default()
-        },
-        children![
+            name: {RdName::new(name)},
+        }
+        Children [
             (
-                Name::new(format!("{} local anchor 1", name)),
-                Transform::from_translation(local_anchor1),
-                Visibility::default(),
-                RcJointLocalAnchor1,
+                Name({format!("{} local anchor 1", name)})
+                Transform { translation: {local_anchor1} }
+                Visibility
+                RcJointLocalAnchor1
             ),
             (
-                Name::new(format!("{} local anchor 2", name)),
-                Transform::from_translation(local_anchor2),
-                Visibility::default(),
-                RcJointLocalAnchor2,
+                Name({format!("{} local anchor 2", name)})
+                Transform { translation: {local_anchor2} }
+                Visibility
+                RcJointLocalAnchor2
             ),
-        ],
-    )
+        ]
+    }
 }

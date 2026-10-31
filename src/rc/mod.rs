@@ -9,9 +9,9 @@ use super::rd::{
 
 /// Root Marker for the Scene containing the robot(s).
 ///
-/// Add manually to the [`SceneRoot`] only while spawning the scene.
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+/// Add manually to the [`WorldAssetRoot`] only while spawning the scene.
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcSceneRoot;
 
 /// Indicates which [`RcSceneRoot`] this part belongs to.
@@ -68,8 +68,8 @@ pub struct RcGroupIsProcessed;
 ///
 /// Add to the root node/empty that groups all the robot
 /// parts under a this single parent.
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcRobotRoot;
 
 /// Marker indicating that the robot root entity has been processed by compositor.
@@ -279,8 +279,8 @@ pub struct RcLink {
 pub struct BelongsToRcLink(pub Entity);
 
 /// Marks the root [`RcLink`] of the robot.
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 #[require(RcLink = RcLink::default())]
 pub struct RcLinkRoot;
 
@@ -309,8 +309,8 @@ pub struct RcCcd;
 /// Disable sleeping for the rigid body.
 ///
 /// To be added on same node as [`RcLink`].
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcDisableSleep;
 
 /// Collider Marker for the Robot.
@@ -519,8 +519,8 @@ pub struct RcSphericalJointLimits {
 /// Add to a child empty/node of [`RcJoint`].
 ///
 /// The transform of this node will be used as the anchor point.
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcJointLocalAnchor1;
 
 /// Joint Local Anchor 1.
@@ -528,8 +528,8 @@ pub struct RcJointLocalAnchor1;
 /// Add to a child empty/node of [`RcJoint`].
 ///
 /// The transform of this node will be used as the anchor point.
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcJointLocalAnchor2;
 
 /// Inverse Kinematics Target marker.

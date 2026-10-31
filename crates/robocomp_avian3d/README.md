@@ -79,7 +79,7 @@ Robocomp is **physics-agnostic** — switching backends requires minimal code an
 
 | Bevy | [avian3d][avian-github] | robocomp_avian3d |
 | ---- | ----------------------- | ---------------- |
-| **0.18** | 0.6.1 | 0.1 |
+| **0.19** | 0.7 | 0.1 |
 
 [bevy-web]: https://bevy.org/
 [avian-github]: https://github.com/avianphysics/avian

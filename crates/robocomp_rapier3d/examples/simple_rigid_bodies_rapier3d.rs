@@ -54,21 +54,22 @@ fn setup_scene(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // Scene...
-    commands
-        .spawn((
-            Name::new("Simple Rigid Bodies Scene"),
-            Transform::default(),
-            Visibility::default(),
-            RcSceneRoot, // Scene Root for Robocomp
-        ))
-        .with_child(rigid_bodies_robot(&mut meshes, &mut materials));
+    let robot = rigid_bodies_robot(&mut meshes, &mut materials);
+    commands.spawn_scene(bsn! {
+        Name("Simple Rigid Bodies Scene")
+        Transform
+        Visibility
+        RcSceneRoot
+        Children [
+            ({robot}),
+        ]
+    });
 }
 
 fn rigid_bodies_robot(
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
-) -> impl Bundle {
+) -> impl Scene {
     let table_mesh_hdl = meshes.add(Mesh::from(Cuboid::from_size(TABLE_SIZE)));
     let table_mat_hdl = materials.add(StandardMaterial {
         base_color: Color::from(SLATE_500),
@@ -85,44 +86,46 @@ fn rigid_bodies_robot(
 
     let table_top = TABLE_SIZE.y;
     let cube_half = CUBE_SIZE / 2.0;
+    let table_link = link("Table", RcRigidBody::Fixed, table_mesh_hdl, table_mat_hdl);
+    let falling_cube = link(
+        "Falling Cube",
+        RcRigidBody::Dynamic,
+        cube_mesh_hdl.clone(),
+        cube_mat_hdl.clone(),
+    );
+    let falling_multi = link_multi_colliders(
+        "Falling Cube Multi Colliders",
+        RcRigidBody::Dynamic,
+        cube_mesh_hdl,
+        cube_mat_hdl,
+    );
+    let table_translation = Vec3::new(0., TABLE_SIZE.y / 2., 0.);
+    let left_cube_translation = Vec3::new(-1., table_top + FALL_HEIGHT + cube_half, 0.);
+    let right_cube_translation = Vec3::new(1., table_top + FALL_HEIGHT + cube_half, 0.);
 
-    (
-        Name::new("Rigid Bodies"),
-        RcRobotRoot,
-        Transform::default(),
-        Visibility::default(),
-        children![
+    bsn! {
+        Name("Rigid Bodies")
+        RcRobotRoot
+        Transform
+        Visibility
+        Children [
             (
-                link("Table", RcRigidBody::Fixed, table_mesh_hdl, table_mat_hdl,),
-                RcLinkRoot, // Mark the first link as the root link of the robot.
-                Transform::from_translation(Vec3::new(0., TABLE_SIZE.y / 2., 0.)),
+                {table_link}
+                RcLinkRoot
+                Transform { translation: {table_translation} }
             ),
             (
-                link(
-                    "Falling Cube",
-                    RcRigidBody::Dynamic,
-                    cube_mesh_hdl.clone(),
-                    cube_mat_hdl.clone(),
-                ),
-                Transform::from_translation(Vec3::new(
-                    -1.,
-                    table_top + FALL_HEIGHT + cube_half,
-                    0.
-                )),
-                RcDisableSleep, // Keep the dynamic link awake.
+                {falling_cube}
+                Transform { translation: {left_cube_translation} }
+                RcDisableSleep
             ),
             (
-                link_multi_colliders(
-                    "Falling Cube Multi Colliders",
-                    RcRigidBody::Dynamic,
-                    cube_mesh_hdl.clone(),
-                    cube_mat_hdl.clone(),
-                ),
-                Transform::from_translation(Vec3::new(1., table_top + FALL_HEIGHT + cube_half, 0.)),
-                RcDisableSleep, // Keep the dynamic link awake.
+                {falling_multi}
+                Transform { translation: {right_cube_translation} }
+                RcDisableSleep
             ),
-        ],
-    )
+        ]
+    }
 }
 
 /// Link with a single child mesh that has a collider.
@@ -131,26 +134,25 @@ fn link(
     rigid_body: RcRigidBody,
     mesh_hdl: Handle<Mesh>,
     material_hdl: Handle<StandardMaterial>,
-) -> impl Bundle {
-    (
-        Name::new(format!("{} Link", name)),
+) -> impl Scene {
+    bsn! {
+        Name({format!("{} Link", name)})
         RcLink {
-            name: RdName::new(name),
-            rigid_body,
-        },
-        Visibility::default(),
-        RcCollider {
-            keep_mesh: true,
-            ..Default::default()
-        },
-        children![(
-            Name::new(format!("{} Mesh", name)),
-            Transform::default(),
-            Visibility::default(),
-            Mesh3d(mesh_hdl),
-            MeshMaterial3d(material_hdl),
-        )],
-    )
+            name: {RdName::new(name)},
+            rigid_body: {rigid_body},
+        }
+        Visibility
+        RcCollider { keep_mesh: true }
+        Children [
+            (
+                Name({format!("{} Mesh", name)})
+                Transform
+                Visibility
+                Mesh3d({mesh_hdl})
+                MeshMaterial3d<StandardMaterial>({material_hdl})
+            )
+        ]
+    }
 }
 
 /// Link with multiple child meshes that have colliders.
@@ -159,47 +161,52 @@ fn link_multi_colliders(
     rigid_body: RcRigidBody,
     mesh_hdl: Handle<Mesh>,
     material_hdl: Handle<StandardMaterial>,
-) -> impl Bundle {
-    (
-        Name::new(format!("{} Link", name)),
+) -> impl Scene {
+    let mesh_a = mesh_hdl.clone();
+    let mesh_b = mesh_hdl;
+    let material_a = material_hdl.clone();
+    let material_b = material_hdl;
+    let node_1_translation = Vec3::new(0., 0.0, -0.6);
+    let node_2_translation = Vec3::new(0., 0.0, 0.6);
+
+    bsn! {
+        Name({format!("{} Link", name)})
         RcLink {
-            name: RdName::new(name),
-            rigid_body,
-        },
-        Visibility::default(),
-        children![
+            name: {RdName::new(name)},
+            rigid_body: {rigid_body},
+        }
+        Visibility
+        Children [
             (
-                Name::new(format!("{} Mesh Node 1", name)),
-                Transform::from_xyz(0., 0.0, -0.6),
-                Visibility::default(),
-                RcCollider {
-                    keep_mesh: true,
-                    ..Default::default()
-                },
-                children![(
-                    Name::new(format!("{} Mesh Node 1 Mesh", name)),
-                    Transform::default(),
-                    Visibility::default(),
-                    Mesh3d(mesh_hdl.clone()),
-                    MeshMaterial3d(material_hdl.clone()),
-                )],
+                Name({format!("{} Mesh Node 1", name)})
+                Transform { translation: {node_1_translation} }
+                Visibility
+                RcCollider { keep_mesh: true }
+                Children [
+                    (
+                        Name({format!("{} Mesh Node 1 Mesh", name)})
+                        Transform
+                        Visibility
+                        Mesh3d({mesh_a})
+                        MeshMaterial3d<StandardMaterial>({material_a})
+                    )
+                ]
             ),
             (
-                Name::new(format!("{} Mesh Node 2", name)),
-                Transform::from_xyz(0., 0.0, 0.6),
-                Visibility::default(),
-                RcCollider {
-                    keep_mesh: true,
-                    ..Default::default()
-                },
-                children![(
-                    Name::new(format!("{} Mesh Node 2 Mesh", name)),
-                    Transform::default(),
-                    Visibility::default(),
-                    Mesh3d(mesh_hdl.clone()),
-                    MeshMaterial3d(material_hdl.clone()),
-                )],
-            )
-        ],
-    )
+                Name({format!("{} Mesh Node 2", name)})
+                Transform { translation: {node_2_translation} }
+                Visibility
+                RcCollider { keep_mesh: true }
+                Children [
+                    (
+                        Name({format!("{} Mesh Node 2 Mesh", name)})
+                        Transform
+                        Visibility
+                        Mesh3d({mesh_b})
+                        MeshMaterial3d<StandardMaterial>({material_b})
+                    )
+                ]
+            ),
+        ]
+    }
 }
