@@ -1,7 +1,7 @@
 //! Example demonstrating a simple robot with a revolute joint between two cubes.
 
-use bevy::{color::palettes::tailwind::BLUE_400, prelude::*};
 use avian3d::prelude::*;
+use bevy::{color::palettes::tailwind::BLUE_400, prelude::*};
 use robocomp_avian3d::{
     RobocompAvianPlugin,
     rc::{
@@ -47,21 +47,22 @@ fn setup_scene(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // Scene...
-    commands
-        .spawn((
-            Name::new("Revolute Example Scene"),
-            Transform::default(),
-            Visibility::default(),
-            RcSceneRoot, // Scene Root for Robocomp
-        ))
-        .with_child(cube_revolute_cube_robot(&mut meshes, &mut materials));
+    let robot = cube_revolute_cube_robot(&mut meshes, &mut materials);
+    commands.spawn_scene(bsn! {
+        Name("Revolute Example Scene")
+        Transform
+        Visibility
+        RcSceneRoot
+        Children [
+            ({robot}),
+        ]
+    });
 }
 
 fn cube_revolute_cube_robot(
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
-) -> impl Bundle {
+) -> impl Scene {
     let cube_mesh_hdl = meshes.add(Mesh::from(Cuboid::from_size(Vec3::splat(1.0))));
     let cube_mat_hdl = materials.add(StandardMaterial {
         base_color: Color::from(BLUE_400),
@@ -69,51 +70,41 @@ fn cube_revolute_cube_robot(
         ..Default::default()
     });
 
-    (
-        Name::new("Cube Revolute Cube Robot"),
-        RcRobotRoot,
-        Transform::default(),
-        Visibility::default(),
-        children![
+    bsn! {
+        Name("Cube Revolute Cube Robot")
+        RcRobotRoot
+        Transform
+        Visibility
+        Children [
             (
-                link(
-                    LINKS[0],
-                    RcRigidBody::Fixed,
-                    cube_mesh_hdl.clone(),
-                    cube_mat_hdl.clone()
-                ),
-                RcLinkRoot, // Mark the first link as the root link for the robot.
-                Transform::from_translation(Vec3::Y * 0.5),
+                link(LINKS[0], RcRigidBody::Fixed, cube_mesh_hdl.clone(), cube_mat_hdl.clone())
+                RcLinkRoot
+                Transform { translation: Vec3::new(0., 0.5, 0.) }
             ),
             (
                 // Create a revolute joint between LINKS[0] and LINKS[1].
                 // Local anchors can usually be left to zero ie. on the same position as the joint entity,
                 // but can be adjusted (in local space of the respective link) for different joint configurations.
-                joint(JOINT, Vec3::ZERO, Vec3::ZERO),
+                joint(JOINT, Vec3::ZERO, Vec3::ZERO)
                 RcJointKind::Revolute {
-                    parent: RdName::new(LINKS[0]),
-                    child: RdName::new(LINKS[1]),
-                    axis: Vec3::Y,
-                },
+                    parent: {RdName::new(LINKS[0])},
+                    child: {RdName::new(LINKS[1])},
+                    axis: {Vec3::Y},
+                }
                 RcRevoluteJointMotor {
-                    model: RdMotorModel::default(),
-                    velocity: Some(RdMotorVelocity { target: 1. }),
+                    model: {RdMotorModel::default()},
+                    velocity: {Some(RdMotorVelocity { target: 1. })},
                     position: None,
                     max_force: None,
-                },
-                Transform::from_translation(Vec3::Y * 1.5),
+                }
+                Transform { translation: Vec3::new(0., 1.5, 0.) }
             ),
             (
-                link(
-                    LINKS[1],
-                    RcRigidBody::Dynamic,
-                    cube_mesh_hdl.clone(),
-                    cube_mat_hdl.clone()
-                ),
-                Transform::from_translation(Vec3::Y * 2.5),
-            )
-        ],
-    )
+                link(LINKS[1], RcRigidBody::Dynamic, cube_mesh_hdl, cube_mat_hdl)
+                Transform { translation: Vec3::new(0., 2.5, 0.) }
+            ),
+        ]
+    }
 }
 
 fn link(
@@ -121,49 +112,47 @@ fn link(
     rigid_body: RcRigidBody,
     mesh_hdl: Handle<Mesh>,
     material_hdl: Handle<StandardMaterial>,
-) -> impl Bundle {
-    (
-        Name::new(format!("{} Link", name)),
+) -> impl Scene {
+    bsn! {
+        Name({format!("{} Link", name)})
         RcLink {
-            name: RdName::new(name),
-            rigid_body,
-        },
-        Visibility::default(),
-        RcCollider {
-            keep_mesh: true,
-            ..Default::default()
-        },
-        children![(
-            Name::new(format!("{} Mesh", name)),
-            Transform::default(),
-            Visibility::default(),
-            Mesh3d(mesh_hdl),
-            MeshMaterial3d(material_hdl),
-        )],
-    )
+            name: {RdName::new(name)},
+            rigid_body: {rigid_body},
+        }
+        Visibility
+        RcCollider { keep_mesh: true }
+        Children [
+            (
+                Name({format!("{} Mesh", name)})
+                Transform
+                Visibility
+                Mesh3d({mesh_hdl})
+                MeshMaterial3d<StandardMaterial>({material_hdl})
+            ),
+        ]
+    }
 }
 
-fn joint(name: &'static str, local_anchor1: Vec3, local_anchor2: Vec3) -> impl Bundle {
-    (
-        Name::new(format!("{} Joint", name)),
-        Visibility::default(),
+fn joint(name: &'static str, local_anchor1: Vec3, local_anchor2: Vec3) -> impl Scene {
+    bsn! {
+        Name({format!("{} Joint", name)})
+        Visibility
         RcJoint {
-            name: RdName::new(name),
-            ..Default::default()
-        },
-        children![
+            name: {RdName::new(name)},
+        }
+        Children [
             (
-                Name::new(format!("{} local anchor 1", name)),
-                Transform::from_translation(local_anchor1),
-                Visibility::default(),
-                RcJointLocalAnchor1,
+                Name({format!("{} local anchor 1", name)})
+                Transform { translation: {local_anchor1} }
+                Visibility
+                RcJointLocalAnchor1
             ),
             (
-                Name::new(format!("{} local anchor 2", name)),
-                Transform::from_translation(local_anchor2),
-                Visibility::default(),
-                RcJointLocalAnchor2,
+                Name({format!("{} local anchor 2", name)})
+                Transform { translation: {local_anchor2} }
+                Visibility
+                RcJointLocalAnchor2
             ),
-        ],
-    )
+        ]
+    }
 }

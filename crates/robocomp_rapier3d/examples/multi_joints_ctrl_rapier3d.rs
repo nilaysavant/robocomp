@@ -78,21 +78,22 @@ fn setup_scene(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // Scene...
-    commands
-        .spawn((
-            Name::new("Multi Joints Control Example Scene"),
-            Transform::default(),
-            Visibility::default(),
-            RcSceneRoot, // Scene Root for Robocomp
-        ))
-        .with_child(multi_joint_robot(&mut meshes, &mut materials));
+    let robot = multi_joint_robot(&mut meshes, &mut materials);
+    commands.spawn_scene(bsn! {
+        Name("Multi Joints Control Example Scene")
+        Transform
+        Visibility
+        RcSceneRoot
+        Children [
+            ({robot}),
+        ]
+    });
 }
 
 fn multi_joint_robot(
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
-) -> impl Bundle {
+) -> impl Scene {
     let cube_mesh_hdl = meshes.add(Mesh::from(Cuboid::from_size(Vec3::splat(CUBE_SIZE))));
     let cube_mat_hdl = materials.add(StandardMaterial {
         base_color: Color::from(BLUE_400),
@@ -100,204 +101,181 @@ fn multi_joint_robot(
         ..Default::default()
     });
 
-    (
-        Name::new("Multi Joint Robot"),
-        RcRobotRoot,
-        Transform::default(),
-        Visibility::default(),
-        children![
+    bsn! {
+        Name("Multi Joint Robot")
+        RcRobotRoot
+        Transform
+        Visibility
+        Children [
             (
-                link(
-                    LINKS[0],
-                    RcRigidBody::Fixed,
-                    cube_mesh_hdl.clone(),
-                    cube_mat_hdl.clone()
-                ),
-                RcLinkRoot, // Mark the first link as the root link for the robot.
-                Transform::from_translation(Vec3::new(0., HALF, 0.)),
+                link(LINKS[0], RcRigidBody::Fixed, cube_mesh_hdl.clone(), cube_mat_hdl.clone())
+                RcLinkRoot
+                Transform { translation: Vec3::new(0., HALF, 0.) }
             ),
             (
                 // Create a revolute joint between LINKS[0] and LINKS[1].
                 // Local anchors can usually be left to zero ie. on the same position as the joint entity,
                 // but can be adjusted (in local space of the respective link) for different joint configurations.
-                joint(JOINTS[0], Vec3::ZERO, Vec3::ZERO),
+                joint(JOINTS[0], Vec3::ZERO, Vec3::ZERO)
                 RcJointKind::Revolute {
-                    parent: RdName::new(LINKS[0]),
-                    child: RdName::new(LINKS[1]),
-                    axis: Vec3::Y,
-                },
+                    parent: {RdName::new(LINKS[0])},
+                    child: {RdName::new(LINKS[1])},
+                    axis: {Vec3::Y},
+                }
                 RcRevoluteJointMotor {
-                    model: RdMotorModel::AccelerationBased {
+                    model: {RdMotorModel::AccelerationBased {
                         stiffness: 0.,
                         damping: MOTOR_CONTROL_DAMPING,
-                    },
-                    velocity: Some(RdMotorVelocity { target: 0. }),
+                    }},
+                    velocity: {Some(RdMotorVelocity { target: 0. })},
                     position: None,
                     max_force: None,
-                },
+                }
                 // Configuration for the motor control for the revolute joint...
                 RcJointMotorControlConfig::Velocity {
-                    normal_vel: MOTOR_CONTROL_NORMAL_VEL,
-                    boost_vel: MOTOR_CONTROL_BOOST_VEL,
-                },
-                Transform::from_translation(Vec3::new(0., CUBE_SIZE, 0.)),
+                    normal_vel: {MOTOR_CONTROL_NORMAL_VEL},
+                    boost_vel: {MOTOR_CONTROL_BOOST_VEL},
+                }
+                Transform { translation: Vec3::new(0., CUBE_SIZE, 0.) }
             ),
             (
-                link(
-                    LINKS[1],
-                    RcRigidBody::Dynamic,
-                    cube_mesh_hdl.clone(),
-                    cube_mat_hdl.clone()
-                ),
-                Transform::from_translation(Vec3::new(
-                    0.,
-                    CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET,
-                    0.
-                )),
-                RcDisableSleep, // Keep the dynamic link awake for stable simulation.
+                link(LINKS[1], RcRigidBody::Dynamic, cube_mesh_hdl.clone(), cube_mat_hdl.clone())
+                Transform { translation: Vec3::new(0., CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET, 0.) }
+                RcDisableSleep
             ),
             (
                 // Create a prismatic joint between LINKS[1] and LINKS[2].
                 // Local anchors can usually be left to zero ie. on the same position as the joint entity,
                 // but can be adjusted (in local space of the respective link) for different joint configurations.
-                joint(JOINTS[1], Vec3::ZERO, Vec3::ZERO),
+                joint(JOINTS[1], Vec3::ZERO, Vec3::ZERO)
                 RcJointKind::Prismatic {
-                    parent: RdName::new(LINKS[1]),
-                    child: RdName::new(LINKS[2]),
-                    axis: Vec3::X,
-                },
+                    parent: {RdName::new(LINKS[1])},
+                    child: {RdName::new(LINKS[2])},
+                    axis: {Vec3::X},
+                }
                 RcPrismaticJointMotor {
-                    model: RdMotorModel::AccelerationBased {
+                    model: {RdMotorModel::AccelerationBased {
                         stiffness: PRISMATIC_MOTOR_STIFFNESS,
                         damping: PRISMATIC_MOTOR_DAMPING,
-                    },
+                    }},
                     velocity: None,
-                    position: Some(RdMotorPosition { target: 0. }),
+                    position: {Some(RdMotorPosition { target: 0. })},
                     max_force: None,
-                },
+                }
                 RcPrismaticJointLimits(RdJointLimits {
                     min: 0.,
-                    max: CUBE_SIZE,
-                }), // Limit the prismatic joint.
+                    max: {CUBE_SIZE},
+                })
                 // Configuration for the motor control for the prismatic joint...
                 RcJointMotorControlConfig::Position {
-                    norm_ang_vel: PRISMATIC_MOTOR_CONTROL_NORM_ANG_VEL,
-                    boost_ang_vel: PRISMATIC_MOTOR_CONTROL_BOOST_ANG_VEL,
-                },
-                Transform::from_translation(Vec3::new(
-                    HALF,
-                    CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET,
-                    0.
-                )),
+                    norm_ang_vel: {PRISMATIC_MOTOR_CONTROL_NORM_ANG_VEL},
+                    boost_ang_vel: {PRISMATIC_MOTOR_CONTROL_BOOST_ANG_VEL},
+                }
+                Transform { translation: Vec3::new(HALF, CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET, 0.) }
             ),
             (
-                link(
-                    LINKS[2],
-                    RcRigidBody::Dynamic,
-                    cube_mesh_hdl.clone(),
-                    cube_mat_hdl.clone()
-                ),
-                Transform::from_translation(Vec3::new(
-                    CUBE_SIZE + HALF,
-                    CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET,
-                    0.
-                )),
-                RcDisableSleep, // Keep the dynamic link awake for stable simulation.
+                link(LINKS[2], RcRigidBody::Dynamic, cube_mesh_hdl.clone(), cube_mat_hdl.clone())
+                Transform {
+                    translation: Vec3::new(
+                        CUBE_SIZE + HALF,
+                        CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET,
+                        0.,
+                    ),
+                }
+                RcDisableSleep
             ),
             (
                 // Create a revolute joint between LINKS[2] and LINKS[3].
                 // Local anchors can usually be left to zero ie. on the same position as the joint entity,
                 // but can be adjusted (in local space of the respective link) for different joint configurations.
-                joint(JOINTS[2], Vec3::ZERO, Vec3::ZERO),
+                joint(JOINTS[2], Vec3::ZERO, Vec3::ZERO)
                 RcJointKind::Revolute {
-                    parent: RdName::new(LINKS[2]),
-                    child: RdName::new(LINKS[3]),
-                    axis: Vec3::Y,
-                },
+                    parent: {RdName::new(LINKS[2])},
+                    child: {RdName::new(LINKS[3])},
+                    axis: {Vec3::Y},
+                }
                 RcRevoluteJointMotor {
-                    model: RdMotorModel::AccelerationBased {
+                    model: {RdMotorModel::AccelerationBased {
                         stiffness: 0.,
                         damping: MOTOR_CONTROL_DAMPING,
-                    },
-                    velocity: Some(RdMotorVelocity { target: 0. }),
+                    }},
+                    velocity: {Some(RdMotorVelocity { target: 0. })},
                     position: None,
                     max_force: None,
-                },
+                }
                 // Configuration for the motor control for the revolute joint...
                 RcJointMotorControlConfig::Velocity {
-                    normal_vel: MOTOR_CONTROL_NORMAL_VEL,
-                    boost_vel: MOTOR_CONTROL_BOOST_VEL,
-                },
-                Transform::from_translation(Vec3::new(
-                    CUBE_SIZE + HALF,
-                    CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET + HALF,
-                    0.,
-                )),
+                    normal_vel: {MOTOR_CONTROL_NORMAL_VEL},
+                    boost_vel: {MOTOR_CONTROL_BOOST_VEL},
+                }
+                Transform {
+                    translation: Vec3::new(
+                        CUBE_SIZE + HALF,
+                        CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET + HALF,
+                        0.,
+                    ),
+                }
             ),
             (
-                link(
-                    LINKS[3],
-                    RcRigidBody::Dynamic,
-                    cube_mesh_hdl.clone(),
-                    cube_mat_hdl.clone()
-                ),
-                Transform::from_translation(Vec3::new(
-                    CUBE_SIZE + HALF,
-                    CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET + HALF + HALF + REVOLUTE_LINK_OFFSET,
-                    0.,
-                )),
-                RcDisableSleep, // Keep the dynamic link awake for stable simulation.
+                link(LINKS[3], RcRigidBody::Dynamic, cube_mesh_hdl.clone(), cube_mat_hdl.clone())
+                Transform {
+                    translation: Vec3::new(
+                        CUBE_SIZE + HALF,
+                        CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET + HALF + HALF + REVOLUTE_LINK_OFFSET,
+                        0.,
+                    ),
+                }
+                RcDisableSleep
             ),
             (
                 // Create a prismatic joint between LINKS[3] and LINKS[4].
                 // Local anchors can usually be left to zero ie. on the same position as the joint entity,
                 // but can be adjusted (in local space of the respective link) for different joint configurations.
-                joint(JOINTS[3], Vec3::ZERO, Vec3::ZERO),
+                joint(JOINTS[3], Vec3::ZERO, Vec3::ZERO)
                 RcJointKind::Prismatic {
-                    parent: RdName::new(LINKS[3]),
-                    child: RdName::new(LINKS[4]),
-                    axis: Vec3::X,
-                },
+                    parent: {RdName::new(LINKS[3])},
+                    child: {RdName::new(LINKS[4])},
+                    axis: {Vec3::X},
+                }
                 RcPrismaticJointMotor {
-                    model: RdMotorModel::AccelerationBased {
+                    model: {RdMotorModel::AccelerationBased {
                         stiffness: PRISMATIC_MOTOR_STIFFNESS,
                         damping: PRISMATIC_MOTOR_DAMPING,
-                    },
+                    }},
                     velocity: None,
-                    position: Some(RdMotorPosition { target: 0. }),
+                    position: {Some(RdMotorPosition { target: 0. })},
                     max_force: None,
-                },
+                }
                 RcPrismaticJointLimits(RdJointLimits {
                     min: 0.,
-                    max: CUBE_SIZE * 2.,
-                }), // Limit the prismatic joint.
+                    max: {CUBE_SIZE * 2.},
+                })
                 // Configuration for the motor control for the prismatic joint...
                 RcJointMotorControlConfig::Position {
-                    norm_ang_vel: PRISMATIC_MOTOR_CONTROL_NORM_ANG_VEL,
-                    boost_ang_vel: PRISMATIC_MOTOR_CONTROL_BOOST_ANG_VEL,
-                },
-                Transform::from_translation(Vec3::new(
-                    CUBE_SIZE * 2. + HALF,
-                    CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET + HALF + HALF + REVOLUTE_LINK_OFFSET,
-                    0.,
-                )),
+                    norm_ang_vel: {PRISMATIC_MOTOR_CONTROL_NORM_ANG_VEL},
+                    boost_ang_vel: {PRISMATIC_MOTOR_CONTROL_BOOST_ANG_VEL},
+                }
+                Transform {
+                    translation: Vec3::new(
+                        CUBE_SIZE * 2. + HALF,
+                        CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET + HALF + HALF + REVOLUTE_LINK_OFFSET,
+                        0.,
+                    ),
+                }
             ),
             (
-                link(
-                    LINKS[4],
-                    RcRigidBody::Dynamic,
-                    cube_mesh_hdl.clone(),
-                    cube_mat_hdl.clone()
-                ),
-                Transform::from_translation(Vec3::new(
-                    CUBE_SIZE + HALF + CUBE_SIZE,
-                    CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET + HALF + HALF + REVOLUTE_LINK_OFFSET,
-                    0.,
-                )),
-                RcDisableSleep, // Keep the dynamic link awake for stable simulation.
+                link(LINKS[4], RcRigidBody::Dynamic, cube_mesh_hdl, cube_mat_hdl)
+                Transform {
+                    translation: Vec3::new(
+                        CUBE_SIZE + HALF + CUBE_SIZE,
+                        CUBE_SIZE + HALF + REVOLUTE_LINK_OFFSET + HALF + HALF + REVOLUTE_LINK_OFFSET,
+                        0.,
+                    ),
+                }
+                RcDisableSleep
             ),
-        ],
-    )
+        ]
+    }
 }
 
 fn link(
@@ -305,49 +283,47 @@ fn link(
     rigid_body: RcRigidBody,
     mesh_hdl: Handle<Mesh>,
     material_hdl: Handle<StandardMaterial>,
-) -> impl Bundle {
-    (
-        Name::new(name),
+) -> impl Scene {
+    bsn! {
+        Name({name})
         RcLink {
-            name: RdName::new(name),
-            rigid_body,
-        },
-        Visibility::default(),
-        RcCollider {
-            keep_mesh: true,
-            ..Default::default()
-        },
-        children![(
-            Name::new(format!("{} Mesh", name)),
-            Transform::default(),
-            Visibility::default(),
-            Mesh3d(mesh_hdl),
-            MeshMaterial3d(material_hdl),
-        )],
-    )
+            name: {RdName::new(name)},
+            rigid_body: {rigid_body},
+        }
+        Visibility
+        RcCollider { keep_mesh: true }
+        Children [
+            (
+                Name({format!("{} Mesh", name)})
+                Transform
+                Visibility
+                Mesh3d({mesh_hdl})
+                MeshMaterial3d<StandardMaterial>({material_hdl})
+            ),
+        ]
+    }
 }
 
-fn joint(name: &'static str, local_anchor1: Vec3, local_anchor2: Vec3) -> impl Bundle {
-    (
-        Name::new(format!("{} Joint", name)),
-        Visibility::default(),
+fn joint(name: &'static str, local_anchor1: Vec3, local_anchor2: Vec3) -> impl Scene {
+    bsn! {
+        Name({format!("{} Joint", name)})
+        Visibility
         RcJoint {
-            name: RdName::new(name),
-            ..Default::default()
-        },
-        children![
+            name: {RdName::new(name)},
+        }
+        Children [
             (
-                Name::new(format!("{} local anchor 1", name)),
-                Transform::from_translation(local_anchor1),
-                Visibility::default(),
-                RcJointLocalAnchor1,
+                Name({format!("{} local anchor 1", name)})
+                Transform { translation: {local_anchor1} }
+                Visibility
+                RcJointLocalAnchor1
             ),
             (
-                Name::new(format!("{} local anchor 2", name)),
-                Transform::from_translation(local_anchor2),
-                Visibility::default(),
-                RcJointLocalAnchor2,
+                Name({format!("{} local anchor 2", name)})
+                Transform { translation: {local_anchor2} }
+                Visibility
+                RcJointLocalAnchor2
             ),
-        ],
-    )
+        ]
+    }
 }

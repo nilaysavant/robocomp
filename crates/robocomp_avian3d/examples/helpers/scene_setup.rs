@@ -49,30 +49,33 @@ fn setup_scene(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // Camera...
-    commands.spawn((
-        Camera3d::default(),
-        Transform::from_translation(Vec3::ONE * 8.).looking_at(Vec3::ZERO, Vec3::Y),
-    ));
+    let camera_transform =
+        Transform::from_translation(Vec3::ONE * 8.).looking_at(Vec3::ZERO, Vec3::Y);
+    let light_transform =
+        Transform::from_translation(Vec3::new(1.0, 1.0, 0.0)).looking_at(Vec3::ZERO, Vec3::Y);
+    let ground_mesh = meshes.add(Mesh::from(Plane3d::new(Vec3::Y, Vec2::splat(5.0))));
+    let ground_material = materials.add(StandardMaterial {
+        perceptual_roughness: 0.,
+        ..Default::default()
+    });
 
-    // Light...
-    commands.spawn((
-        Name::new("Sun Light"),
-        DirectionalLight {
-            illuminance: CLEAR_SUNRISE,
-            shadows_enabled: true,
-            ..Default::default()
-        },
-        Transform::from_translation(Vec3::new(1.0, 1.0, 0.0)).looking_at(Vec3::ZERO, Vec3::Y),
-    ));
-
-    // Ground plane...
-    commands.spawn((
-        Name::new("Ground Plane"),
-        Mesh3d(meshes.add(Mesh::from(Plane3d::new(Vec3::Y, Vec2::splat(5.0))))),
-        MeshMaterial3d(materials.add(StandardMaterial {
-            perceptual_roughness: 0.,
-            ..Default::default()
-        })),
-    ));
+    commands.spawn_scene_list(bsn_list! {
+        (
+            Camera3d
+            template_value(camera_transform)
+        ),
+        (
+            Name("Sun Light")
+            DirectionalLight {
+                illuminance: {CLEAR_SUNRISE},
+                shadow_maps_enabled: true,
+            }
+            template_value(light_transform)
+        ),
+        (
+            Name("Ground Plane")
+            Mesh3d({ground_mesh})
+            MeshMaterial3d<StandardMaterial>({ground_material})
+        ),
+    });
 }

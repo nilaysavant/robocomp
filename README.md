@@ -25,7 +25,7 @@ For Rapier 3D simulations, depend on `robocomp_rapier3d`:
 
 ```toml
 [dependencies]
-robocomp_rapier3d = "0.1"
+robocomp_rapier3d = "0.2"
 ```
 
 ```rust,ignore
@@ -45,7 +45,7 @@ For Avian 3D simulations, depend on `robocomp_avian3d`:
 
 ```toml
 [dependencies]
-robocomp_avian3d = "0.1"
+robocomp_avian3d = "0.2"
 ```
 
 ```rust,ignore
@@ -67,6 +67,7 @@ For a custom physics backend, depend on `robocomp` only and implement your own p
 
 | Bevy     | [bevy_rapier3d][bevy-rapier-github] | robocomp_rapier3d | [avian3d][avian-github] | robocomp_avian3d |
 | -------- | ----------------------------------- | ----------------- | ----------------------- | ---------------- |
+| **0.19** | 0.36                                | 0.2               | 0.7                     | 0.2              |
 | **0.18** | 0.34                                | 0.1               | 0.6.1                   | 0.1              |
 
 ## Workspace

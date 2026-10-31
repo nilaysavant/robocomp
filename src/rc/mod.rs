@@ -1,6 +1,6 @@
 use std::f32::consts::{FRAC_PI_2, PI};
 
-use bevy::{platform::collections::HashMap, prelude::*};
+use bevy::{ecs::VariantDefaults, platform::collections::HashMap, prelude::*};
 use petgraph::prelude::*;
 
 use super::rd::{
@@ -9,9 +9,9 @@ use super::rd::{
 
 /// Root Marker for the Scene containing the robot(s).
 ///
-/// Add manually to the [`SceneRoot`] only while spawning the scene.
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+/// Add manually to the [`WorldAssetRoot`] only while spawning the scene.
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcSceneRoot;
 
 /// Indicates which [`RcSceneRoot`] this part belongs to.
@@ -68,8 +68,8 @@ pub struct RcGroupIsProcessed;
 ///
 /// Add to the root node/empty that groups all the robot
 /// parts under a this single parent.
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcRobotRoot;
 
 /// Marker indicating that the robot root entity has been processed by compositor.
@@ -279,8 +279,8 @@ pub struct RcLink {
 pub struct BelongsToRcLink(pub Entity);
 
 /// Marks the root [`RcLink`] of the robot.
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 #[require(RcLink = RcLink::default())]
 pub struct RcLinkRoot;
 
@@ -309,8 +309,8 @@ pub struct RcCcd;
 /// Disable sleeping for the rigid body.
 ///
 /// To be added on same node as [`RcLink`].
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcDisableSleep;
 
 /// Collider Marker for the Robot.
@@ -382,8 +382,10 @@ pub enum RcJointCategory {
 /// Joint Kind for the RcJoint.
 ///
 /// Add to same node as [`RcJoint`].
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+///
+/// [`Default`] is [`RcJointKind::Fixed`], so the enum can be written directly in `bsn!`.
+#[derive(Debug, Clone, Reflect, Component, VariantDefaults)]
+#[reflect(Component, Default)]
 pub enum RcJointKind {
     Fixed {
         parent: RdName,
@@ -407,11 +409,20 @@ pub enum RcJointKind {
     },
 }
 
+impl Default for RcJointKind {
+    fn default() -> Self {
+        Self::Fixed {
+            parent: RdName::default(),
+            child: RdName::default(),
+        }
+    }
+}
+
 /// Config for Control of the Joint Motor.
 ///
 /// Optionally add to the same node as [`RcJoint`].
 /// Also requires [`RcRevoluteJointMotor`] or equivalent to be added to the same node.
-#[derive(Debug, Clone, Reflect, Component)]
+#[derive(Debug, Clone, Reflect, Component, VariantDefaults)]
 #[reflect(Component, Default)]
 pub enum RcJointMotorControlConfig {
     /// Config for Position Control of the Joint Motor.
@@ -456,8 +467,8 @@ pub struct RcRevoluteJointMotor {
 /// Configuring Revolute Joint Limits.
 ///
 /// Add to the same node as [`RcJoint`].
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcRevoluteJointLimits(pub RdJointLimits);
 
 /// Configuring Prismatic Joint Motor.
@@ -475,8 +486,8 @@ pub struct RcPrismaticJointMotor {
 /// Configuring Prismatic Joint Limits.
 ///
 /// Add to the same node as [`RcJoint`].
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcPrismaticJointLimits(pub RdJointLimits);
 
 /// Configuring Spherical Joint Motor.
@@ -519,8 +530,8 @@ pub struct RcSphericalJointLimits {
 /// Add to a child empty/node of [`RcJoint`].
 ///
 /// The transform of this node will be used as the anchor point.
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcJointLocalAnchor1;
 
 /// Joint Local Anchor 1.
@@ -528,8 +539,8 @@ pub struct RcJointLocalAnchor1;
 /// Add to a child empty/node of [`RcJoint`].
 ///
 /// The transform of this node will be used as the anchor point.
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcJointLocalAnchor2;
 
 /// Inverse Kinematics Target marker.

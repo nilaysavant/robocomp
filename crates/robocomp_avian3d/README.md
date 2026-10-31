@@ -17,7 +17,7 @@ The [Avian][avian-github] physics plugin must be added **alongside** the robocom
 
 ```toml
 [dependencies]
-robocomp_avian3d = "0.1"
+robocomp_avian3d = "0.2"
 ```
 
 ```rust,ignore
@@ -79,6 +79,7 @@ Robocomp is **physics-agnostic** — switching backends requires minimal code an
 
 | Bevy | [avian3d][avian-github] | robocomp_avian3d |
 | ---- | ----------------------- | ---------------- |
+| **0.19** | 0.7 | 0.2 |
 | **0.18** | 0.6.1 | 0.1 |
 
 [bevy-web]: https://bevy.org/

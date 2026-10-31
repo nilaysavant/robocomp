@@ -247,7 +247,7 @@ pub struct RdMotorPosition {
     pub target: RdScaler,
 }
 
-#[derive(Debug, Clone, Reflect)]
+#[derive(Debug, Clone, Reflect, Default)]
 pub struct RdJointLimits {
     pub min: RdScaler,
     pub max: RdScaler,
