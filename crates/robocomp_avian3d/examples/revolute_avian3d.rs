@@ -70,23 +70,6 @@ fn cube_revolute_cube_robot(
         ..Default::default()
     });
 
-    let base_link = link(
-        LINKS[0],
-        RcRigidBody::Fixed,
-        cube_mesh_hdl.clone(),
-        cube_mat_hdl.clone(),
-    );
-    let moving_link = link(LINKS[1], RcRigidBody::Dynamic, cube_mesh_hdl, cube_mat_hdl);
-    let joint_scene = joint(JOINT, Vec3::ZERO, Vec3::ZERO);
-    let base_translation = Vec3::Y * 0.5;
-    let joint_translation = Vec3::Y * 1.5;
-    let joint_kind = RcJointKind::Revolute {
-        parent: RdName::new(LINKS[0]),
-        child: RdName::new(LINKS[1]),
-        axis: Vec3::Y,
-    };
-    let moving_translation = Vec3::Y * 2.5;
-
     bsn! {
         Name("Cube Revolute Cube Robot")
         RcRobotRoot
@@ -94,39 +77,33 @@ fn cube_revolute_cube_robot(
         Visibility
         Children [
             (
-                {base_link}
+                link(LINKS[0], RcRigidBody::Fixed, cube_mesh_hdl.clone(), cube_mat_hdl.clone())
                 RcLinkRoot
-                Transform { translation: {base_translation} }
+                Transform { translation: Vec3::new(0., 0.5, 0.) }
             ),
             (
                 // Create a revolute joint between LINKS[0] and LINKS[1].
                 // Local anchors can usually be left to zero ie. on the same position as the joint entity,
                 // but can be adjusted (in local space of the respective link) for different joint configurations.
-                {joint_scene}
-                {scene_component(joint_kind)}
+                joint(JOINT, Vec3::ZERO, Vec3::ZERO)
+                RcJointKind::Revolute {
+                    parent: {RdName::new(LINKS[0])},
+                    child: {RdName::new(LINKS[1])},
+                    axis: {Vec3::Y},
+                }
                 RcRevoluteJointMotor {
                     model: {RdMotorModel::default()},
                     velocity: {Some(RdMotorVelocity { target: 1. })},
                     position: None,
                     max_force: None,
                 }
-                Transform { translation: {joint_translation} }
+                Transform { translation: Vec3::new(0., 1.5, 0.) }
             ),
             (
-                {moving_link}
-                Transform { translation: {moving_translation} }
+                link(LINKS[1], RcRigidBody::Dynamic, cube_mesh_hdl, cube_mat_hdl)
+                Transform { translation: Vec3::new(0., 2.5, 0.) }
             ),
         ]
-    }
-}
-
-/// Insert a component value that `bsn!` cannot construct directly.
-fn scene_component<T>(value: T) -> impl Scene
-where
-    T: Component + Clone + Send + Sync + 'static,
-{
-    bsn! {
-        template(move |_ctx| Ok(value.clone()))
     }
 }
 

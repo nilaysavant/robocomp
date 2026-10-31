@@ -78,28 +78,6 @@ fn cube_revolute_cube_robot(
         ..Default::default()
     });
 
-    let base_link = link(
-        LINKS[0],
-        RcRigidBody::Fixed,
-        cube_mesh_hdl.clone(),
-        cube_mat_hdl.clone(),
-    );
-    let moving_link = link(LINKS[1], RcRigidBody::Dynamic, cube_mesh_hdl, cube_mat_hdl);
-    let joint_scene = joint(JOINT, Vec3::ZERO, Vec3::ZERO);
-    let joint_kind = scene_component(RcJointKind::Prismatic {
-        parent: RdName::new(LINKS[0]),
-        child: RdName::new(LINKS[1]),
-        axis: Vec3::X,
-    });
-    let joint_limits = scene_component(RcPrismaticJointLimits(RdJointLimits { min: 0., max: 2.5 }));
-    let motor_control = scene_component(RcJointMotorControlConfig::Position {
-        norm_ang_vel: 4.,
-        boost_ang_vel: 8.,
-    });
-    let base_translation = Vec3::new(0., 0.5, 0.);
-    let joint_translation = Vec3::new(1., 0.5, 0.);
-    let moving_translation = Vec3::new(2., 0.5, 0.);
-
     bsn! {
         Name("Cube Prismatic Cube Robot")
         RcRobotRoot
@@ -107,16 +85,20 @@ fn cube_revolute_cube_robot(
         Visibility
         Children [
             (
-                {base_link}
+                link(LINKS[0], RcRigidBody::Fixed, cube_mesh_hdl.clone(), cube_mat_hdl.clone())
                 RcLinkRoot
-                Transform { translation: {base_translation} }
+                Transform { translation: Vec3::new(0., 0.5, 0.) }
             ),
             (
                 // Create a prismatic joint between LINKS[0] and LINKS[1].
                 // Local anchors can usually be left to zero ie. on the same position as the joint entity,
                 // but can be adjusted (in local space of the respective link) for different joint configurations.
-                {joint_scene}
-                {joint_kind}
+                joint(JOINT, Vec3::ZERO, Vec3::ZERO)
+                RcJointKind::Prismatic {
+                    parent: {RdName::new(LINKS[0])},
+                    child: {RdName::new(LINKS[1])},
+                    axis: {Vec3::X},
+                }
                 RcPrismaticJointMotor {
                     model: {RdMotorModel::AccelerationBased {
                         stiffness: 5000.,
@@ -126,27 +108,20 @@ fn cube_revolute_cube_robot(
                     position: {Some(RdMotorPosition { target: 0. })},
                     max_force: None,
                 }
-                {joint_limits}
+                RcPrismaticJointLimits(RdJointLimits { min: 0., max: 2.5 })
                 // Configuration for the motor control for the prismatic joint...
-                {motor_control}
-                Transform { translation: {joint_translation} }
+                RcJointMotorControlConfig::Position {
+                    norm_ang_vel: 4.,
+                    boost_ang_vel: 8.,
+                }
+                Transform { translation: Vec3::new(1., 0.5, 0.) }
             ),
             (
-                {moving_link}
-                Transform { translation: {moving_translation} }
+                link(LINKS[1], RcRigidBody::Dynamic, cube_mesh_hdl, cube_mat_hdl)
+                Transform { translation: Vec3::new(2., 0.5, 0.) }
                 RcDisableSleep
             ),
         ]
-    }
-}
-
-/// Insert a component value that `bsn!` cannot construct directly.
-fn scene_component<T>(value: T) -> impl Scene
-where
-    T: Component + Clone + Send + Sync + 'static,
-{
-    bsn! {
-        template(move |_ctx| Ok(value.clone()))
     }
 }
 

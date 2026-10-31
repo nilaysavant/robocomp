@@ -81,25 +81,6 @@ fn rigid_bodies_robot(
         ..Default::default()
     });
 
-    let table_top = TABLE_SIZE.y;
-    let cube_half = CUBE_SIZE / 2.0;
-    let table_link = link("Table", RcRigidBody::Fixed, table_mesh_hdl, table_mat_hdl);
-    let falling_cube = link(
-        "Falling Cube",
-        RcRigidBody::Dynamic,
-        cube_mesh_hdl.clone(),
-        cube_mat_hdl.clone(),
-    );
-    let falling_multi = link_multi_colliders(
-        "Falling Cube Multi Colliders",
-        RcRigidBody::Dynamic,
-        cube_mesh_hdl,
-        cube_mat_hdl,
-    );
-    let table_translation = Vec3::new(0., TABLE_SIZE.y / 2., 0.);
-    let left_cube_translation = Vec3::new(-1., table_top + FALL_HEIGHT + cube_half, 0.);
-    let right_cube_translation = Vec3::new(1., table_top + FALL_HEIGHT + cube_half, 0.);
-
     bsn! {
         Name("Rigid Bodies")
         RcRobotRoot
@@ -107,18 +88,28 @@ fn rigid_bodies_robot(
         Visibility
         Children [
             (
-                {table_link}
+                link("Table", RcRigidBody::Fixed, table_mesh_hdl, table_mat_hdl)
                 RcLinkRoot
-                Transform { translation: {table_translation} }
+                Transform { translation: Vec3::new(0., TABLE_SIZE.y / 2., 0.) }
             ),
             (
-                {falling_cube}
-                Transform { translation: {left_cube_translation} }
+                link(
+                    "Falling Cube",
+                    RcRigidBody::Dynamic,
+                    cube_mesh_hdl.clone(),
+                    cube_mat_hdl.clone(),
+                )
+                Transform { translation: Vec3::new(-1., TABLE_SIZE.y + FALL_HEIGHT + CUBE_SIZE / 2., 0.) }
                 RcDisableSleep
             ),
             (
-                {falling_multi}
-                Transform { translation: {right_cube_translation} }
+                link_multi_colliders(
+                    "Falling Cube Multi Colliders",
+                    RcRigidBody::Dynamic,
+                    cube_mesh_hdl,
+                    cube_mat_hdl,
+                )
+                Transform { translation: Vec3::new(1., TABLE_SIZE.y + FALL_HEIGHT + CUBE_SIZE / 2., 0.) }
                 RcDisableSleep
             ),
         ]
@@ -159,13 +150,6 @@ fn link_multi_colliders(
     mesh_hdl: Handle<Mesh>,
     material_hdl: Handle<StandardMaterial>,
 ) -> impl Scene {
-    let mesh_a = mesh_hdl.clone();
-    let mesh_b = mesh_hdl;
-    let material_a = material_hdl.clone();
-    let material_b = material_hdl;
-    let node_1_translation = Vec3::new(0., 0.0, -0.6);
-    let node_2_translation = Vec3::new(0., 0.0, 0.6);
-
     bsn! {
         Name({format!("{} Link", name)})
         RcLink {
@@ -176,7 +160,7 @@ fn link_multi_colliders(
         Children [
             (
                 Name({format!("{} Mesh Node 1", name)})
-                Transform { translation: {node_1_translation} }
+                Transform { translation: Vec3::new(0., 0., -0.6) }
                 Visibility
                 RcCollider { keep_mesh: true }
                 Children [
@@ -184,14 +168,14 @@ fn link_multi_colliders(
                         Name({format!("{} Mesh Node 1 Mesh", name)})
                         Transform
                         Visibility
-                        Mesh3d({mesh_a})
-                        MeshMaterial3d<StandardMaterial>({material_a})
+                        Mesh3d({mesh_hdl.clone()})
+                        MeshMaterial3d<StandardMaterial>({material_hdl.clone()})
                     )
                 ]
             ),
             (
                 Name({format!("{} Mesh Node 2", name)})
-                Transform { translation: {node_2_translation} }
+                Transform { translation: Vec3::new(0., 0., 0.6) }
                 Visibility
                 RcCollider { keep_mesh: true }
                 Children [
@@ -199,8 +183,8 @@ fn link_multi_colliders(
                         Name({format!("{} Mesh Node 2 Mesh", name)})
                         Transform
                         Visibility
-                        Mesh3d({mesh_b})
-                        MeshMaterial3d<StandardMaterial>({material_b})
+                        Mesh3d({mesh_hdl})
+                        MeshMaterial3d<StandardMaterial>({material_hdl})
                     )
                 ]
             ),

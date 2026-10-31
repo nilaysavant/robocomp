@@ -1,6 +1,6 @@
 use std::f32::consts::{FRAC_PI_2, PI};
 
-use bevy::{platform::collections::HashMap, prelude::*};
+use bevy::{ecs::VariantDefaults, platform::collections::HashMap, prelude::*};
 use petgraph::prelude::*;
 
 use super::rd::{
@@ -382,8 +382,10 @@ pub enum RcJointCategory {
 /// Joint Kind for the RcJoint.
 ///
 /// Add to same node as [`RcJoint`].
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+///
+/// [`Default`] is [`RcJointKind::Fixed`], so the enum can be written directly in `bsn!`.
+#[derive(Debug, Clone, Reflect, Component, VariantDefaults)]
+#[reflect(Component, Default)]
 pub enum RcJointKind {
     Fixed {
         parent: RdName,
@@ -407,11 +409,20 @@ pub enum RcJointKind {
     },
 }
 
+impl Default for RcJointKind {
+    fn default() -> Self {
+        Self::Fixed {
+            parent: RdName::default(),
+            child: RdName::default(),
+        }
+    }
+}
+
 /// Config for Control of the Joint Motor.
 ///
 /// Optionally add to the same node as [`RcJoint`].
 /// Also requires [`RcRevoluteJointMotor`] or equivalent to be added to the same node.
-#[derive(Debug, Clone, Reflect, Component)]
+#[derive(Debug, Clone, Reflect, Component, VariantDefaults)]
 #[reflect(Component, Default)]
 pub enum RcJointMotorControlConfig {
     /// Config for Position Control of the Joint Motor.
@@ -456,8 +467,8 @@ pub struct RcRevoluteJointMotor {
 /// Configuring Revolute Joint Limits.
 ///
 /// Add to the same node as [`RcJoint`].
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcRevoluteJointLimits(pub RdJointLimits);
 
 /// Configuring Prismatic Joint Motor.
@@ -475,8 +486,8 @@ pub struct RcPrismaticJointMotor {
 /// Configuring Prismatic Joint Limits.
 ///
 /// Add to the same node as [`RcJoint`].
-#[derive(Debug, Clone, Reflect, Component)]
-#[reflect(Component)]
+#[derive(Debug, Clone, Reflect, Component, Default)]
+#[reflect(Component, Default)]
 pub struct RcPrismaticJointLimits(pub RdJointLimits);
 
 /// Configuring Spherical Joint Motor.
