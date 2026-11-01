@@ -1,6 +1,6 @@
 //! Conversions from physics-agnostic robocomp types to Avian components.
 
-use avian3d::{math::Vector, prelude::*};
+use avian3d::prelude::*;
 use bevy::prelude::*;
 use robocomp::{
     rc::RcRigidBody,
@@ -76,8 +76,8 @@ pub fn fixed_joint_from_rd(
     }: RdFixedJointData,
 ) -> FixedJoint {
     FixedJoint::new(parent, child)
-        .with_local_anchor1(vec3_to_vector(local_anchor1))
-        .with_local_anchor2(vec3_to_vector(local_anchor2))
+        .with_local_anchor1(local_anchor1)
+        .with_local_anchor2(local_anchor2)
 }
 
 pub fn revolute_joint_from_rd(
@@ -92,9 +92,9 @@ pub fn revolute_joint_from_rd(
     }: RdRevoluteJointData,
 ) -> RevoluteJoint {
     let mut joint = RevoluteJoint::new(parent, child)
-        .with_hinge_axis(vec3_to_vector(axis))
-        .with_local_anchor1(vec3_to_vector(local_anchor1))
-        .with_local_anchor2(vec3_to_vector(local_anchor2))
+        .with_hinge_axis(axis)
+        .with_local_anchor1(local_anchor1)
+        .with_local_anchor2(local_anchor2)
         .with_motor(angular_motor_from_rd(&motor));
 
     if let Some(RdJointLimits { min, max }) = limits {
@@ -116,9 +116,9 @@ pub fn prismatic_joint_from_rd(
     }: RdPrismaticJointData,
 ) -> PrismaticJoint {
     let mut joint = PrismaticJoint::new(parent, child)
-        .with_slider_axis(vec3_to_vector(axis))
-        .with_local_anchor1(vec3_to_vector(local_anchor1))
-        .with_local_anchor2(vec3_to_vector(local_anchor2))
+        .with_slider_axis(axis)
+        .with_local_anchor1(local_anchor1)
+        .with_local_anchor2(local_anchor2)
         .with_motor(linear_motor_from_rd(&motor));
 
     if let Some(RdJointLimits { min, max }) = limits {
@@ -141,8 +141,8 @@ pub fn spherical_joint_from_rd(
     }: RdSphericalJointData,
 ) -> SphericalJoint {
     let mut joint = SphericalJoint::new(parent, child)
-        .with_local_anchor1(vec3_to_vector(local_anchor1))
-        .with_local_anchor2(vec3_to_vector(local_anchor2));
+        .with_local_anchor1(local_anchor1)
+        .with_local_anchor2(local_anchor2);
 
     // Best-effort mapping: Rapier per-axis limits → Avian swing/twist limits.
     if let Some(RdJointLimits { min, max }) = limit_ang_x {
@@ -156,8 +156,4 @@ pub fn spherical_joint_from_rd(
     }
 
     joint
-}
-
-fn vec3_to_vector(value: Vec3) -> Vector {
-    Vector::from(value)
 }

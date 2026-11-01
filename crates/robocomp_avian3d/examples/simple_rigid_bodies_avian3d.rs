@@ -58,7 +58,7 @@ fn setup_scene(
         Visibility
         RcSceneRoot
         Children [
-            ({robot}),
+            @{robot}
         ]
     });
 }
@@ -87,31 +87,27 @@ fn rigid_bodies_robot(
         Transform
         Visibility
         Children [
-            (
-                link("Table", RcRigidBody::Fixed, table_mesh_hdl, table_mat_hdl)
-                RcLinkRoot
-                Transform { translation: Vec3::new(0., TABLE_SIZE.y / 2., 0.) }
-            ),
-            (
-                link(
-                    "Falling Cube",
-                    RcRigidBody::Dynamic,
-                    cube_mesh_hdl.clone(),
-                    cube_mat_hdl.clone(),
-                )
-                Transform { translation: Vec3::new(-1., TABLE_SIZE.y + FALL_HEIGHT + CUBE_SIZE / 2., 0.) }
-                RcDisableSleep
-            ),
-            (
-                link_multi_colliders(
-                    "Falling Cube Multi Colliders",
-                    RcRigidBody::Dynamic,
-                    cube_mesh_hdl,
-                    cube_mat_hdl,
-                )
-                Transform { translation: Vec3::new(1., TABLE_SIZE.y + FALL_HEIGHT + CUBE_SIZE / 2., 0.) }
-                RcDisableSleep
-            ),
+            @link("Table", RcRigidBody::Fixed, table_mesh_hdl, table_mat_hdl)
+            RcLinkRoot
+            Transform { translation: Vec3::new(0., TABLE_SIZE.y / 2., 0.) }
+            --
+            @link(
+                "Falling Cube",
+                RcRigidBody::Dynamic,
+                cube_mesh_hdl.clone(),
+                cube_mat_hdl.clone(),
+            )
+            Transform { translation: Vec3::new(-1., TABLE_SIZE.y + FALL_HEIGHT + CUBE_SIZE / 2., 0.) }
+            RcDisableSleep
+            --
+            @link_multi_colliders(
+                "Falling Cube Multi Colliders",
+                RcRigidBody::Dynamic,
+                cube_mesh_hdl,
+                cube_mat_hdl,
+            )
+            Transform { translation: Vec3::new(1., TABLE_SIZE.y + FALL_HEIGHT + CUBE_SIZE / 2., 0.) }
+            RcDisableSleep
         ]
     }
 }
@@ -132,13 +128,11 @@ fn link(
         Visibility
         RcCollider { keep_mesh: true }
         Children [
-            (
-                Name({format!("{} Mesh", name)})
-                Transform
-                Visibility
-                Mesh3d({mesh_hdl})
-                MeshMaterial3d<StandardMaterial>({material_hdl})
-            )
+            Name({format!("{} Mesh", name)})
+            Transform
+            Visibility
+            Mesh3d({mesh_hdl})
+            MeshMaterial3d<StandardMaterial>({material_hdl})
         ]
     }
 }
@@ -158,36 +152,29 @@ fn link_multi_colliders(
         }
         Visibility
         Children [
-            (
-                Name({format!("{} Mesh Node 1", name)})
-                Transform { translation: Vec3::new(0., 0., -0.6) }
+            Name({format!("{} Mesh Node 1", name)})
+            Transform { translation: Vec3::new(0., 0., -0.6) }
+            Visibility
+            RcCollider { keep_mesh: true }
+            Children [
+                Name({format!("{} Mesh Node 1 Mesh", name)})
+                Transform
                 Visibility
-                RcCollider { keep_mesh: true }
-                Children [
-                    (
-                        Name({format!("{} Mesh Node 1 Mesh", name)})
-                        Transform
-                        Visibility
-                        Mesh3d({mesh_hdl.clone()})
-                        MeshMaterial3d<StandardMaterial>({material_hdl.clone()})
-                    )
-                ]
-            ),
-            (
-                Name({format!("{} Mesh Node 2", name)})
-                Transform { translation: Vec3::new(0., 0., 0.6) }
+                Mesh3d({mesh_hdl.clone()})
+                MeshMaterial3d<StandardMaterial>({material_hdl.clone()})
+            ]
+            --
+            Name({format!("{} Mesh Node 2", name)})
+            Transform { translation: Vec3::new(0., 0., 0.6) }
+            Visibility
+            RcCollider { keep_mesh: true }
+            Children [
+                Name({format!("{} Mesh Node 2 Mesh", name)})
+                Transform
                 Visibility
-                RcCollider { keep_mesh: true }
-                Children [
-                    (
-                        Name({format!("{} Mesh Node 2 Mesh", name)})
-                        Transform
-                        Visibility
-                        Mesh3d({mesh_hdl})
-                        MeshMaterial3d<StandardMaterial>({material_hdl})
-                    )
-                ]
-            ),
+                Mesh3d({mesh_hdl})
+                MeshMaterial3d<StandardMaterial>({material_hdl})
+            ]
         ]
     }
 }

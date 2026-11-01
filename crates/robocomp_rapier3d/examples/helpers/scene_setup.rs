@@ -60,22 +60,18 @@ fn setup_scene(
     });
 
     commands.spawn_scene_list(bsn_list! {
-        (
-            Camera3d
-            template_value(camera_transform)
-        ),
-        (
-            Name("Sun Light")
-            DirectionalLight {
-                illuminance: {CLEAR_SUNRISE},
-                shadow_maps_enabled: true,
-            }
-            template_value(light_transform)
-        ),
-        (
-            Name("Ground Plane")
-            Mesh3d({ground_mesh})
-            MeshMaterial3d<StandardMaterial>({ground_material})
-        ),
+        Camera3d
+        camera_transform
+        --
+        Name("Sun Light")
+        DirectionalLight {
+            illuminance: {CLEAR_SUNRISE},
+            shadow_maps_enabled: true,
+        }
+        light_transform
+        --
+        Name("Ground Plane")
+        Mesh3d({ground_mesh})
+        MeshMaterial3d<StandardMaterial>({ground_material})
     });
 }

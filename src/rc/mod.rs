@@ -1,6 +1,6 @@
 use std::f32::consts::{FRAC_PI_2, PI};
 
-use bevy::{ecs::VariantDefaults, platform::collections::HashMap, prelude::*};
+use bevy::{platform::collections::HashMap, prelude::*};
 use petgraph::prelude::*;
 
 use super::rd::{
@@ -383,8 +383,8 @@ pub enum RcJointCategory {
 ///
 /// Add to same node as [`RcJoint`].
 ///
-/// [`Default`] is [`RcJointKind::Fixed`], so the enum can be written directly in `bsn!`.
-#[derive(Debug, Clone, Reflect, Component, VariantDefaults)]
+/// [`Default`] is [`RcJointKind::Fixed`]. Together with [`Clone`], that is enough to write the enum directly in `bsn!`.
+#[derive(Debug, Clone, Reflect, Component)]
 #[reflect(Component, Default)]
 pub enum RcJointKind {
     Fixed {
@@ -422,7 +422,7 @@ impl Default for RcJointKind {
 ///
 /// Optionally add to the same node as [`RcJoint`].
 /// Also requires [`RcRevoluteJointMotor`] or equivalent to be added to the same node.
-#[derive(Debug, Clone, Reflect, Component, VariantDefaults)]
+#[derive(Debug, Clone, Reflect, Component)]
 #[reflect(Component, Default)]
 pub enum RcJointMotorControlConfig {
     /// Config for Position Control of the Joint Motor.

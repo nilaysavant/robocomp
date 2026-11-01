@@ -40,7 +40,7 @@ impl Plugin for RobocompRapierTestHarnessPlugin {
 }
 
 pub fn attach_collider_proxy(
-    on_add: On<Add, Collider>,
+    on_add: On<Add<Collider>>,
     colliders: Query<&Collider>,
     mut commands: Commands,
 ) -> Result {
